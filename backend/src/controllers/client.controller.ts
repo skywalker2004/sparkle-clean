@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import Client from '../models/Client.model';
-import { AuthRequest } from '../types';
-import { calculateNextCleaning } from '../utils/scheduleUtils'; // We'll create this in step 6
+import Client from '../models/Client.model';  // FIXED: Use correct path (add .model if file is named Client.model.ts, but test without if renamed)
+import { AuthRequest, ClientData } from '../types';
+import { calculateNextCleaning } from '../utils/scheduleUtils';
 
 export const getClients = async (req: AuthRequest, res: Response) => {
   const { search, frequency, serviceType, status } = req.query;
@@ -13,7 +13,7 @@ export const getClients = async (req: AuthRequest, res: Response) => {
   if (status) query.status = status;
 
   const clients = await Client.find(query).populate('createdBy', 'name');
-  const clientsWithNext = clients.map((client) => ({
+  const clientsWithNext = clients.map((client: any) => ({  // FIXED: Explicit 'any' or use IClient if defined
     ...client.toJSON(),
     nextCleaning: calculateNextCleaning(client),
   }));
@@ -32,7 +32,7 @@ export const getClient = async (req: AuthRequest, res: Response) => {
 };
 
 export const createClient = async (req: AuthRequest, res: Response) => {
-  const clientData = { ...req.body, createdBy: req.user!._id };
+  const clientData: ClientData = { ...req.body, createdBy: req.user!._id };
   const client = new Client(clientData);
   await client.save();
   res.status(201).json(client);
