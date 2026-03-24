@@ -12,6 +12,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, isAuthenticated: false, isLoading: true });
 
+  // #region agent log
+  useEffect(() => {
+    fetch("http://127.0.0.1:7502/ingest/6374a321-2831-470e-87f4-74d51ee0d4d1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "94c943" },
+      body: JSON.stringify({
+        sessionId: "94c943",
+        runId: "pre-fix",
+        hypothesisId: "H7",
+        location: "AuthContext.tsx:16",
+        message: "AuthProvider mounted",
+        data: { initialLoading: state.isLoading },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }, [state.isLoading]);
+  // #endregion
+
   useEffect(() => {
     authApi.getSession().then((user: User | null) => {
       setState({ user, isAuthenticated: !!user, isLoading: false });
