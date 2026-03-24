@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   const qc = useQueryClient();
@@ -21,6 +22,47 @@ export default function DashboardPage() {
     queryKey: ["monthly-revenue"],
     queryFn: dashboardApi.getMonthlyRevenue,
   });
+
+  // #region agent log
+  useEffect(() => {
+    fetch("http://127.0.0.1:7502/ingest/6374a321-2831-470e-87f4-74d51ee0d4d1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "94c943" },
+      body: JSON.stringify({
+        sessionId: "94c943",
+        runId: "pre-fix",
+        hypothesisId: "H4",
+        location: "DashboardPage.tsx:26",
+        message: "DashboardPage mounted",
+        data: { hasQueryClient: Boolean(qc) },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }, [qc]);
+  // #endregion
+
+  // #region agent log
+  useEffect(() => {
+    fetch("http://127.0.0.1:7502/ingest/6374a321-2831-470e-87f4-74d51ee0d4d1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "94c943" },
+      body: JSON.stringify({
+        sessionId: "94c943",
+        runId: "pre-fix",
+        hypothesisId: "H5",
+        location: "DashboardPage.tsx:44",
+        message: "Dashboard query state updated",
+        data: {
+          statsLoading,
+          hasStats: Boolean(stats),
+          hasRevenueData: Array.isArray(revenueData),
+          revenueCount: Array.isArray(revenueData) ? revenueData.length : -1,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }, [statsLoading, stats, revenueData]);
+  // #endregion
 
   // Placeholder for upcoming clients - replace with real logic later
   const upcoming = [];
