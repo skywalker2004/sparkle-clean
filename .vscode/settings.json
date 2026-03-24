@@ -1,0 +1,4 @@
+{
+  "typescript.tsdk": "sparkle-clean-main/frontend/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
