@@ -1,35 +1,49 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { User, AuthState, LoginCredentials } from "@/types";
-import { authApi } from "@/lib/api";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { User } from "@/types";
 
-interface AuthContextType extends AuthState {
-  login: (creds: LoginCredentials) => Promise<void>;
-  logout: () => Promise<void>;
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (data: { email: string; password: string }) => Promise<void>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({ user: null, isAuthenticated: false, isLoading: true });
+const DEMO_USER: User = {
+  id: "1", name: "Admin User",
+  email: "admin@sparkleclean.com", role: "admin",
+};
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    authApi.getSession().then((user: User | null) => {
-      setState({ user, isAuthenticated: !!user, isLoading: false });
-    });
+    try {
+      const stored = localStorage.getItem("sc-user");
+      if (stored) setUser(JSON.parse(stored));
+    } catch { /* ignore */ }
+    setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (creds: LoginCredentials) => {
-    const user = await authApi.login(creds);
-    setState({ user, isAuthenticated: true, isLoading: false });
-  }, []);
+  const login = async ({ email, password }: { email: string; password: string }) => {
+    if (email === "admin@sparkleclean.com" && password === "Florida2026!") {
+      setUser(DEMO_USER);
+      localStorage.setItem("sc-user", JSON.stringify(DEMO_USER));
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  };
 
-  const logout = useCallback(async () => {
-    await authApi.logout();
-    setState({ user: null, isAuthenticated: false, isLoading: false });
-  }, []);
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("sc-user");
+  };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

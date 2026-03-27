@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    --primary: 160 84% 29%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 20% 95%;
+    --secondary-foreground: 160 84% 22%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 15% 50%;
+
+    --accent: 160 30% 92%;
+    --accent-foreground: 160 84% 22%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 90%;
+    --input: 214 20% 90%;
+    --ring: 160 84% 29%;
+
+    --radius: 0.75rem;
+
+    --success: 160 84% 29%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 25% 30%;
+    --sidebar-primary: 160 84% 29%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 160 30% 95%;
+    --sidebar-accent-foreground: 160 84% 22%;
+    --sidebar-border: 214 20% 92%;
+    --sidebar-ring: 160 84% 29%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(160 84% 29%), hsl(160 60% 40%));
+    --gradient-card-1: linear-gradient(135deg, hsl(160 84% 39%), hsl(170 70% 32%));
+    --gradient-card-2: linear-gradient(135deg, hsl(217 91% 60%), hsl(230 80% 55%));
+    --gradient-card-3: linear-gradient(135deg, hsl(38 92% 50%), hsl(25 95% 55%));
+    --gradient-card-4: linear-gradient(135deg, hsl(280 70% 55%), hsl(260 75% 50%));
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --shadow-elevated: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 4px 10px -4px rgb(0 0 0 / 0.04);
+    --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 20% 92%;
+
+    --card: 222 47% 9%;
+    --card-foreground: 210 20% 92%;
+
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 20% 92%;
+
+    --primary: 160 72% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 25% 15%;
+    --secondary-foreground: 160 60% 60%;
+
+    --muted: 215 25% 14%;
+    --muted-foreground: 215 15% 55%;
+
+    --accent: 215 25% 15%;
+    --accent-foreground: 160 60% 60%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 25% 16%;
+    --input: 215 25% 16%;
+    --ring: 160 72% 42%;
+
+    --success: 160 72% 42%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 20% 80%;
+    --sidebar-primary: 160 72% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 25% 14%;
+    --sidebar-accent-foreground: 160 60% 60%;
+    --sidebar-border: 215 25% 14%;
+    --sidebar-ring: 160 72% 42%;
+
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+    --shadow-elevated: 0 10px 25px -5px rgb(0 0 0 / 0.4);
+    --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+
+    --glass-bg: rgba(15, 23, 42, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .gradient-card-1 {
+    background: var(--gradient-card-1);
+  }
+  .gradient-card-2 {
+    background: var(--gradient-card-2);
+  }
+  .gradient-card-3 {
+    background: var(--gradient-card-3);
+  }
+  .gradient-card-4 {
+    background: var(--gradient-card-4);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  .shadow-modal {
+    box-shadow: var(--shadow-modal);
+  }
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--glass-border);
+  }
+  .glass-subtle {
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
+  }
+}
