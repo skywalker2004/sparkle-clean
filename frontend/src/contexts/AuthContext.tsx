@@ -14,6 +14,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // #region agent log
+    fetch('http://127.0.0.1:7740/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e34294'},body:JSON.stringify({sessionId:'e34294',runId:'pre-fix',hypothesisId:'H5',location:'frontend/src/contexts/AuthContext.tsx:16',message:'AuthProvider useEffect entered',data:{hasInitialUser:!!state.user,initialIsAuthenticated:state.isAuthenticated,initialIsLoading:state.isLoading},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    // #region agent log
     fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H2',location:'frontend/src/contexts/AuthContext.tsx:16',message:'AuthProvider session check started',data:{hasInitialUser:!!state.user,initialIsAuthenticated:state.isAuthenticated,initialIsLoading:state.isLoading},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     authApi.getSession().then(user => {
