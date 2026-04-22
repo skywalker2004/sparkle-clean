@@ -6,6 +6,9 @@ import { useEffect } from "react";
 export default function Home() {
   useEffect(() => {
     // #region agent log
+    fetch('http://127.0.0.1:7740/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e34294'},body:JSON.stringify({sessionId:'e34294',runId:'pre-fix',hypothesisId:'H4',location:'frontend/sparkle-clean/app/page.tsx:8',message:'Next home page mounted',data:{href:typeof window !== 'undefined' ? window.location.href : null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    // #region agent log
     fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H5',location:'frontend/sparkle-clean/app/page.tsx:7',message:'Next home page mounted in browser',data:{href:typeof window !== 'undefined' ? window.location.href : null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
   }, []);
