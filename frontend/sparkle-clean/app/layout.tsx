@@ -22,6 +22,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // #region agent log
+  fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H6',location:'frontend/sparkle-clean/app/layout.tsx:25',message:'Next root layout rendered',data:{nodeEnv:process.env.NODE_ENV ?? null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   return (
     <html lang="en">
       <body
