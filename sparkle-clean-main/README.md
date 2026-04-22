@@ -1,2 +1,0 @@
-# sparkle-clean
-Cleaning company

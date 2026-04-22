@@ -13,8 +13,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, isAuthenticated: false, isLoading: true });
 
   useEffect(() => {
-    authApi.getSession().then((user: User | null) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H2',location:'frontend/src/contexts/AuthContext.tsx:16',message:'AuthProvider session check started',data:{hasInitialUser:!!state.user,initialIsAuthenticated:state.isAuthenticated,initialIsLoading:state.isLoading},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    authApi.getSession().then(user => {
+      // #region agent log
+      fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H2',location:'frontend/src/contexts/AuthContext.tsx:20',message:'AuthProvider session check resolved',data:{hasUser:!!user,userRole:user?.role ?? null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       setState({ user, isAuthenticated: !!user, isLoading: false });
+    }).catch((error) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H2',location:'frontend/src/contexts/AuthContext.tsx:24',message:'AuthProvider session check rejected',data:{errorMessage:error instanceof Error ? error.message : 'unknown-error'},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      setState({ user: null, isAuthenticated: false, isLoading: false });
     });
   }, []);
 
