@@ -143,7 +143,7 @@ export default function DashboardPage() {
                       fontSize: 13,
                       boxShadow: "var(--shadow-elevated)",
                     }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
+                    formatter={(value) => [`$${Number(value ?? 0).toLocaleString()}`, "Revenue"]}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#revenueGradient)" />
                 </AreaChart>

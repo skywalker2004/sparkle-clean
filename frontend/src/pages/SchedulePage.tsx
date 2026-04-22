@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientsApi, getNextCleaningDate, recordCleaning } from "@/lib/api";
 import { Client } from "@/types";
@@ -150,7 +150,7 @@ export default function SchedulePage() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!recordDialog} onOpenChange={v => { if (!v) setRecordDialog(null); }}>
+      <Dialog open={!!recordDialog} onOpenChange={(v: boolean) => { if (!v) setRecordDialog(null); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Record Completed Cleaning</DialogTitle></DialogHeader>
           {recordDialog && (
@@ -165,13 +165,13 @@ export default function SchedulePage() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={selectedDate} onSelect={d => d && setSelectedDate(d)} className="p-3 pointer-events-auto" />
+                    <Calendar mode="single" selected={selectedDate} onSelect={(d: Date | undefined) => d && setSelectedDate(d)} className="p-3 pointer-events-auto" />
                   </PopoverContent>
                 </Popover>
               </div>
               <div className="space-y-1.5">
                 <Label>Notes (optional)</Label>
-                <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any notes about this cleaning…" rows={3} />
+                <Textarea value={notes} onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)} placeholder="Any notes about this cleaning…" rows={3} />
               </div>
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setRecordDialog(null)}>Cancel</Button>

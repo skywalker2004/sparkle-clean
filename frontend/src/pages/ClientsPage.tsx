@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientsApi, getNextCleaningDate, exportToCSV } from "@/lib/api";
 import { Client } from "@/types";
@@ -39,7 +39,7 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
   const qc = useQueryClient();
   const { user } = useAuth();
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<ClientFormData>({
-    resolver: zodResolver(clientSchema),
+    resolver: zodResolver(clientSchema) as any,
     defaultValues: client ? {
       name: client.name, phone: client.phone, email: client.email, address: client.address,
       serviceType: client.serviceType, pricePerVisit: client.pricePerVisit, frequency: client.frequency,
@@ -181,7 +181,7 @@ export default function ClientsPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleExport}><Download className="w-4 h-4 mr-1" />CSV</Button>
-          <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditClient(undefined); }}>
+          <Dialog open={dialogOpen} onOpenChange={(v: boolean) => { setDialogOpen(v); if (!v) setEditClient(undefined); }}>
             <DialogTrigger asChild>
               <Button size="sm"><Plus className="w-4 h-4 mr-1" />Add Client</Button>
             </DialogTrigger>
@@ -195,7 +195,7 @@ export default function ClientsPage() {
 
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input placeholder="Search by name, phone, or address…" className="pl-10" value={search} onChange={e => setSearch(e.target.value)} />
+        <Input placeholder="Search by name, phone, or address…" className="pl-10" value={search} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} />
       </div>
 
       {isLoading ? (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { invoicesApi, exportToCSV } from "@/lib/api";
 import { Invoice } from "@/types";
@@ -175,7 +175,7 @@ export default function InvoicesPage() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-md">
-          <Input placeholder="Search client or invoice #…" value={search} onChange={e => setSearch(e.target.value)} />
+          <Input placeholder="Search client or invoice #…" value={search} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
@@ -266,7 +266,7 @@ export default function InvoicesPage() {
         </Card>
       )}
 
-      <Dialog open={!!previewInvoice} onOpenChange={v => { if (!v) setPreviewInvoice(null); }}>
+      <Dialog open={!!previewInvoice} onOpenChange={(v: boolean) => { if (!v) setPreviewInvoice(null); }}>
         {previewInvoice && <InvoicePreviewModal invoice={previewInvoice} onClose={() => setPreviewInvoice(null)} />}
       </Dialog>
     </div>
