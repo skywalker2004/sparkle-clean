@@ -4,18 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, DollarSign, AlertCircle, CalendarDays, CheckCircle2, TrendingUp, Sparkles } from "lucide-react";
+import { Users, Banknote, AlertCircle, CalendarDays, CheckCircle2, TrendingUp, Sparkles } from "lucide-react";
 import { format, isWithinInterval, startOfDay, addDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { Client } from "@/types";
+import { Client, DashboardStats } from "@/types";
 import { motion } from "framer-motion";
 
-const statCards: Array<{ key: keyof import("@/types").DashboardStats; label: string; icon: typeof Users; gradient: string; isMoney?: boolean }> = [
+const statCards: Array<{
+  key: keyof DashboardStats;
+  label: string;
+  icon: typeof Users;
+  gradient: string;
+  isMoney?: boolean;
+}> = [
   { key: "totalActiveClients", label: "Active Clients", icon: Users, gradient: "gradient-card-1" },
-  { key: "revenueThisMonth", label: "Revenue This Month", icon: DollarSign, gradient: "gradient-card-2", isMoney: true },
-  { key: "outstandingBalance", label: "Outstanding", icon: AlertCircle, gradient: "gradient-card-3", isMoney: true },
+  { key: "revenueThisMonth", label: "Revenue This Month", icon: Banknote, gradient: "gradient-card-2", isMoney: true },
+  { key: "outstandingBalance", label: "Outstanding Balance", icon: AlertCircle, gradient: "gradient-card-3", isMoney: true },
   { key: "upcomingThisWeek", label: "Upcoming This Week", icon: CalendarDays, gradient: "gradient-card-4" },
 ];
 
@@ -27,21 +33,37 @@ const cardVariants = {
   }),
 };
 
+function formatKES(amount: number): string {
+  return `KSh ${amount.toLocaleString("en-KE")}`;
+}
+
 export default function DashboardPage() {
   const qc = useQueryClient();
-  const { data: stats, isLoading: statsLoading } = useQuery({ queryKey: ["dashboard-stats"], queryFn: dashboardApi.getStats });
-  const { data: revenueData, isLoading: revenueLoading } = useQuery({ queryKey: ["monthly-revenue"], queryFn: dashboardApi.getMonthlyRevenue });
-  const { data: clients } = useQuery({ queryKey: ["clients"], queryFn: clientsApi.list });
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: dashboardApi.getStats,
+  });
+  const { data: revenueData, isLoading: revenueLoading } = useQuery({
+    queryKey: ["monthly-revenue"],
+    queryFn: dashboardApi.getMonthlyRevenue,
+  });
+  const { data: clients } = useQuery({
+    queryKey: ["clients"],
+    queryFn: clientsApi.list,
+  });
 
   const now = new Date();
   const weekEnd = addDays(startOfDay(now), 7);
+
   const upcomingClients = (clients ?? [])
     .filter(c => c.status === "active")
     .map(c => ({ ...c, nextDate: getNextCleaningDate(c) }))
     .filter(c => c.nextDate && isWithinInterval(c.nextDate, { start: startOfDay(now), end: weekEnd }))
-    .sort((a, b) => (a.nextDate!.getTime() - b.nextDate!.getTime()));
+    .sort((a, b) => a.nextDate!.getTime() - b.nextDate!.getTime());
 
-  const recentClients = [...(clients ?? [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+  const recentClients = [...(clients ?? [])]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   const handleRecordCleaning = async (client: Client) => {
     try {
@@ -58,7 +80,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Hero Welcome Banner */}
+      {/* Hero Banner */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -75,10 +97,12 @@ export default function DashboardPage() {
         <div className="relative p-6 sm:p-8 text-primary-foreground">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5" />
-            <span className="text-sm font-medium opacity-90">Welcome back</span>
+            <span className="text-sm font-medium opacity-90">Karibu tena</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold">SparkleClean Dashboard</h1>
-          <p className="text-sm opacity-80 mt-1 max-w-md">Your premium cleaning business at a glance. Track clients, revenue, and upcoming cleanings.</p>
+          <p className="text-sm opacity-80 mt-1 max-w-md">
+            Manage your cleaning business across Nairobi. Track clients, revenue, and upcoming appointments.
+          </p>
         </div>
       </motion.div>
 
@@ -95,8 +119,10 @@ export default function DashboardPage() {
                     {statsLoading ? (
                       <Skeleton className="h-8 w-24 mt-1 bg-primary-foreground/20" />
                     ) : (
-                      <p className="text-3xl font-display font-bold mt-1">
-                        {isMoney ? `$${(stats?.[key] ?? 0).toLocaleString()}` : stats?.[key] ?? 0}
+                      <p className="text-2xl font-display font-bold mt-1">
+                        {isMoney
+                          ? formatKES(Number(stats?.[key] ?? 0))
+                          : stats?.[key] ?? 0}
                       </p>
                     )}
                   </div>
@@ -114,7 +140,7 @@ export default function DashboardPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
         <Card className="shadow-card border-border/50">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg font-display">Monthly Revenue</CardTitle>
+            <CardTitle className="text-lg font-display">Monthly Revenue (KSh)</CardTitle>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <TrendingUp className="w-3.5 h-3.5 text-primary" />
               Last 6 months
@@ -134,18 +160,27 @@ export default function DashboardPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" fontSize={12} tick={{ fill: "hsl(var(--muted-foreground))" }} />
-                  <YAxis fontSize={12} tick={{ fill: "hsl(var(--muted-foreground))" }} tickFormatter={v => `$${v}`} />
+                  <YAxis
+                    fontSize={12}
+                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                    tickFormatter={v => `${Number(v).toLocaleString()}`}
+                  />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "var(--radius)",
                       fontSize: 13,
-                      boxShadow: "var(--shadow-elevated)",
                     }}
-                    formatter={(value) => [`$${Number(value ?? 0).toLocaleString()}`, "Revenue"]}
+                    formatter={(value) => [formatKES(Number(value ?? 0)), "Revenue"]}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#revenueGradient)" />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2.5}
+                    fill="url(#revenueGradient)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -187,7 +222,9 @@ export default function DashboardPage() {
                     >
                       <div>
                         <p className="font-medium text-sm text-foreground">{c.name}</p>
-                        <p className="text-xs text-muted-foreground">{format(c.nextDate!, "EEE, MMM d")} · ${c.pricePerVisit}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(c.nextDate!, "EEE, MMM d")} · {formatKES(c.pricePerVisit)}
+                        </p>
                       </div>
                       <Button size="sm" variant="outline" onClick={() => handleRecordCleaning(c)} className="text-xs">
                         <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Complete
