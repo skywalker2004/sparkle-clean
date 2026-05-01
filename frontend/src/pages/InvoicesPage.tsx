@@ -53,7 +53,7 @@ function InvoicePreviewModal({ invoice, onClose }: { invoice: Invoice; onClose: 
         <div class="row"><span>Status</span><span>${invoice.status.toUpperCase()}</span></div>
         ${invoice.paidDate ? `<div class="row"><span>Date Paid</span><span>${format(new Date(invoice.paidDate), "PPP")}</span></div>` : ""}
         <p class="total">Total: ${formatKES(invoice.amount)}</p>
-        <div class="footer">SparkleClean © 2026 · Nairobi, Kenya · Thank you for your business!</div>
+        <div class="footer">© 2026 SparkleClean. Excellence in service. Trusted by professionals.</div>
       </body></html>
     `);
     w.document.close();
@@ -102,7 +102,7 @@ function InvoicePreviewModal({ invoice, onClose }: { invoice: Invoice; onClose: 
           </div>
           <div className="pt-4 border-t border-border text-center">
             <p className="text-xs text-muted-foreground">
-              SparkleClean © 2026 · Nairobi, Kenya · Thank you for your business!
+              © 2026 SparkleClean. Excellence in service. Trusted by professionals.
             </p>
           </div>
         </div>

@@ -190,7 +190,7 @@ export default function DashboardLayout() {
             </AnimatePresence>
           </main>
           <footer className="px-6 py-3 text-xs text-muted-foreground border-t border-border text-center">
-            Data backed up automatically · SparkleClean © 2026
+            © 2026 SparkleClean. Excellence in service. Trusted by professionals.
           </footer>
         </div>
       </div>
