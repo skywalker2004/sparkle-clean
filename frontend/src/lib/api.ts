@@ -1,231 +1,169 @@
-/**
- * API Service Layer — Stub implementation using localStorage.
- * Replace each function body with real fetch() calls to your Express backend.
- * Base URL: const API = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
- */
+import { addWeeks, addMonths } from "date-fns";
+import { Client, Invoice, DashboardStats, MonthlyRevenue, User, LoginCredentials } from "@/types";
 
-import { Client, Invoice, User, LoginCredentials, DashboardStats, MonthlyRevenue } from "@/types";
-import { addDays, isWithinInterval, startOfMonth, endOfMonth, startOfDay, format, subMonths } from "date-fns";
-import { initializeData } from "./mock-data";
+const BASE = "http://localhost:5000/api";
 
-// Initialize mock data on first load
-initializeData();
+const getToken = () => localStorage.getItem("sc-token");
 
-function getClients(): Client[] {
-  return JSON.parse(localStorage.getItem("sc_clients") || "[]");
-}
-function setClients(clients: Client[]) {
-  localStorage.setItem("sc_clients", JSON.stringify(clients));
-}
-function getInvoices(): Invoice[] {
-  return JSON.parse(localStorage.getItem("sc_invoices") || "[]");
-}
-function setInvoices(invoices: Invoice[]) {
-  localStorage.setItem("sc_invoices", JSON.stringify(invoices));
-}
-function getUsers(): User[] {
-  return JSON.parse(localStorage.getItem("sc_users") || "[]");
-}
+const h = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${getToken()}`,
+});
 
-// Delay helper for realistic feel
-const delay = (ms = 300) => new Promise(r => setTimeout(r, ms));
-
-export function getNextCleaningDate(client: Client): Date | null {
-  if (!client.lastCleanedDate) return null;
-  const last = new Date(client.lastCleanedDate);
-  const daysMap = { weekly: 7, biweekly: 14, monthly: 30 };
-  return addDays(last, daysMap[client.frequency]);
-}
-
-// ── Auth ──
+// ── Auth ──────────────────────────────────────────────────────
 export const authApi = {
   async login(creds: LoginCredentials): Promise<User> {
-    await delay(500);
-    const users = getUsers();
-    // Mock: accept any password for demo, in prod this hits your backend
-    const user = users.find(u => u.email === creds.email);
-    if (!user) throw new Error("Invalid email or password");
-    // Store session
-    localStorage.setItem("sc_session", JSON.stringify(user));
-    return user;
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(creds),
+    });
+    if (!res.ok) throw new Error("Invalid email or password");
+    const data = await res.json();
+    localStorage.setItem("sc-token", data.token);
+    localStorage.setItem("sc-user", JSON.stringify(data.user));
+    return data.user;
   },
+
   async logout(): Promise<void> {
-    await delay(200);
-    localStorage.removeItem("sc_session");
+    localStorage.removeItem("sc-token");
+    localStorage.removeItem("sc-user");
   },
+
   async getSession(): Promise<User | null> {
-    await delay(100);
-    const s = localStorage.getItem("sc_session");
+    const s = localStorage.getItem("sc-user");
     return s ? JSON.parse(s) : null;
   },
 };
 
-// ── Clients ──
+// ── Clients ───────────────────────────────────────────────────
 export const clientsApi = {
   async list(): Promise<Client[]> {
-    await delay();
-    return getClients();
+    const res = await fetch(`${BASE}/clients`, { headers: h() });
+    if (!res.ok) throw new Error("Failed to fetch clients");
+    const data = await res.json();
+    return data.map((c: any) => ({ ...c, id: c._id }));
   },
+
   async getById(id: string): Promise<Client> {
-    await delay();
-    const c = getClients().find(c => c.id === id);
-    if (!c) throw new Error("Client not found");
-    return c;
+    const res = await fetch(`${BASE}/clients/${id}`, { headers: h() });
+    if (!res.ok) throw new Error("Client not found");
+    const c = await res.json();
+    return { ...c, id: c._id };
   },
+
   async create(data: Omit<Client, "id" | "createdAt" | "updatedAt">): Promise<Client> {
-    await delay();
-    const clients = getClients();
-    const client: Client = {
-      ...data,
-      id: `c${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    clients.push(client);
-    setClients(clients);
-    return client;
+    const res = await fetch(`${BASE}/clients`, {
+      method: "POST",
+      headers: h(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to create client");
+    const c = await res.json();
+    return { ...c, id: c._id };
   },
+
   async update(id: string, data: Partial<Client>): Promise<Client> {
-    await delay();
-    const clients = getClients();
-    const idx = clients.findIndex(c => c.id === id);
-    if (idx === -1) throw new Error("Client not found");
-    clients[idx] = { ...clients[idx], ...data, updatedAt: new Date().toISOString() };
-    setClients(clients);
-    return clients[idx];
+    const res = await fetch(`${BASE}/clients/${id}`, {
+      method: "PUT",
+      headers: h(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update client");
+    const c = await res.json();
+    return { ...c, id: c._id };
   },
+
   async remove(id: string): Promise<void> {
-    await delay();
-    setClients(getClients().filter(c => c.id !== id));
+    await fetch(`${BASE}/clients/${id}`, { method: "DELETE", headers: h() });
   },
 };
 
-// ── Invoices ──
+// ── Invoices ──────────────────────────────────────────────────
 export const invoicesApi = {
   async list(): Promise<Invoice[]> {
-    await delay();
-    return getInvoices();
+    const res = await fetch(`${BASE}/invoices`, { headers: h() });
+    if (!res.ok) throw new Error("Failed to fetch invoices");
+    const data = await res.json();
+    return data.map((i: any) => ({ ...i, id: i._id }));
   },
+
   async create(data: Omit<Invoice, "id" | "createdAt" | "updatedAt">): Promise<Invoice> {
-    await delay();
-    const invoices = getInvoices();
-    const invoice: Invoice = {
-      ...data,
-      id: `inv-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    invoices.push(invoice);
-    setInvoices(invoices);
-    return invoice;
+    const res = await fetch(`${BASE}/invoices`, {
+      method: "POST",
+      headers: h(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to create invoice");
+    const i = await res.json();
+    return { ...i, id: i._id };
   },
+
   async markPaid(ids: string[]): Promise<void> {
-    await delay();
-    const invoices = getInvoices();
-    const now = new Date().toISOString();
-    for (const inv of invoices) {
-      if (ids.includes(inv.id)) {
-        inv.status = "paid";
-        inv.paidDate = now;
-        inv.updatedAt = now;
-      }
-    }
-    setInvoices(invoices);
-  },
-  async remove(id: string): Promise<void> {
-    await delay();
-    setInvoices(getInvoices().filter(i => i.id !== id));
-  },
-};
-
-// ── Record Completed Cleaning ──
-export async function recordCleaning(clientId: string, date: Date, notes: string): Promise<Invoice> {
-  await delay(400);
-  const clients = getClients();
-  const client = clients.find(c => c.id === clientId);
-  if (!client) throw new Error("Client not found");
-
-  // Update lastCleanedDate
-  await clientsApi.update(clientId, { lastCleanedDate: date.toISOString() });
-
-  // Generate invoice number
-  const invoices = getInvoices();
-  const monthStr = format(date, "yyyyMM");
-  const monthInvoices = invoices.filter(i => i.invoiceNumber.includes(monthStr));
-  const nextNum = monthInvoices.length + 1;
-  const invoiceNumber = `INV-${monthStr}-${String(nextNum).padStart(4, "0")}`;
-
-  return invoicesApi.create({
-    clientId: client.id,
-    clientName: client.name,
-    invoiceNumber,
-    amount: client.pricePerVisit,
-    dueDate: date.toISOString(),
-    status: "unpaid",
-    paidDate: null,
-    notes,
-  });
-}
-
-// ── Dashboard ──
-export const dashboardApi = {
-  async getStats(): Promise<DashboardStats> {
-    await delay();
-    const clients = getClients();
-    const invoices = getInvoices();
-    const now = new Date();
-    const monthStart = startOfMonth(now);
-    const monthEnd = endOfMonth(now);
-
-    const activeClients = clients.filter(c => c.status === "active");
-
-    const revenueThisMonth = invoices
-      .filter(i => i.status === "paid" && i.paidDate &&
-        isWithinInterval(new Date(i.paidDate), { start: monthStart, end: monthEnd }))
-      .reduce((sum, i) => sum + i.amount, 0);
-
-    const outstandingBalance = invoices
-      .filter(i => i.status === "unpaid")
-      .reduce((sum, i) => sum + i.amount, 0);
-
-    const weekEnd = addDays(startOfDay(now), 7);
-    const upcomingThisWeek = activeClients.filter(c => {
-      const next = getNextCleaningDate(c);
-      return next && isWithinInterval(next, { start: startOfDay(now), end: weekEnd });
-    }).length;
-
-    return { totalActiveClients: activeClients.length, revenueThisMonth, outstandingBalance, upcomingThisWeek };
-  },
-  async getMonthlyRevenue(): Promise<MonthlyRevenue[]> {
-    await delay();
-    const invoices = getInvoices();
-    const now = new Date();
-    return Array.from({ length: 6 }, (_, i) => {
-      const month = subMonths(now, 5 - i);
-      const start = startOfMonth(month);
-      const end = endOfMonth(month);
-      const revenue = invoices
-        .filter(inv => inv.status === "paid" && inv.paidDate &&
-          isWithinInterval(new Date(inv.paidDate), { start, end }))
-        .reduce((sum, inv) => sum + inv.amount, 0);
-      return { month: format(month, "MMM yyyy"), revenue };
+    await fetch(`${BASE}/invoices/mark-paid`, {
+      method: "PUT",
+      headers: h(),
+      body: JSON.stringify({ ids }),
     });
   },
+
+  async remove(id: string): Promise<void> {
+    await fetch(`${BASE}/invoices/${id}`, { method: "DELETE", headers: h() });
+  },
 };
 
-// ── CSV Export ──
+// ── Record Cleaning ───────────────────────────────────────────
+export async function recordCleaning(
+  clientId: string,
+  date: Date,
+  notes: string
+): Promise<Invoice> {
+  const res = await fetch(`${BASE}/invoices/record-cleaning`, {
+    method: "POST",
+    headers: h(),
+    body: JSON.stringify({ clientId, date: date.toISOString(), notes }),
+  });
+  if (!res.ok) throw new Error("Failed to record cleaning");
+  const i = await res.json();
+  return { ...i, id: i._id };
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+export const dashboardApi = {
+  async getStats(): Promise<DashboardStats> {
+    const res = await fetch(`${BASE}/invoices/dashboard-stats`, { headers: h() });
+    if (!res.ok) throw new Error("Failed to fetch stats");
+    return res.json();
+  },
+
+  async getMonthlyRevenue(): Promise<MonthlyRevenue[]> {
+    const res = await fetch(`${BASE}/invoices/monthly-revenue`, { headers: h() });
+    if (!res.ok) throw new Error("Failed to fetch revenue");
+    return res.json();
+  },
+};
+
+// ── Utilities ─────────────────────────────────────────────────
+export function getNextCleaningDate(client: Client): Date | null {
+  if (!client.lastCleanedDate) return null;
+  const last = new Date(client.lastCleanedDate);
+  if (client.frequency === "weekly") return addWeeks(last, 1);
+  if (client.frequency === "biweekly") return addWeeks(last, 2);
+  return addMonths(last, 1);
+}
+
 export function exportToCSV(data: Record<string, unknown>[], filename: string) {
-  if (data.length === 0) return;
-  const headers = Object.keys(data[0]);
+  if (!data.length) return;
+  const keys = Object.keys(data[0]);
   const csv = [
-    headers.join(","),
-    ...data.map(row => headers.map(h => `"${String(row[h] ?? "")}"`).join(","))
+    keys.join(","),
+    ...data.map(row => keys.map(k => `"${String(row[k] ?? "")}"`).join(",")),
   ].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
+  const a = Object.assign(document.createElement("a"), {
+    href: URL.createObjectURL(blob),
+    download: filename,
+  });
   a.click();
-  URL.revokeObjectURL(url);
+  URL.revokeObjectURL(a.href);
 }
