@@ -13,7 +13,14 @@ import SchedulePage from "@/pages/SchedulePage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
+  defaultOptions: { 
+    queries: { 
+      staleTime: 5_000,  // 5 seconds instead of 30
+      gcTime: 10 * 60 * 1000,  // 10 minutes
+      retry: 1,
+      refetchOnWindowFocus: true  // Refetch when window regains focus
+    } 
+  },
 });
 
 const App = () => (
