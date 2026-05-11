@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 interface IInvoice extends mongoose.Document {
   client: mongoose.Types.ObjectId;
+  clientName: string;
   invoiceNumber: string;
   amount: number;
   dueDate: Date;
@@ -15,6 +16,7 @@ interface IInvoice extends mongoose.Document {
 const InvoiceSchema: Schema = new Schema(
   {
     client: { type: Schema.Types.ObjectId, ref: 'Client', required: true },
+    clientName: { type: String, required: true },
     invoiceNumber: { type: String, required: true, unique: true },
     amount: { type: Number, required: true, min: 0 },
     dueDate: { type: Date, required: true },
