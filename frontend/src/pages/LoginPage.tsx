@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "admin@sparkleclean.com", password: "Florida2026!" },
+    defaultValues: { email: "admin@sparkleclean.co.ke", password: "Nairobi2026!" },
   });
 
   const onSubmit = async (data: { email: string; password: string }) => {
@@ -93,7 +93,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-xs text-white/50 text-center mt-6">
-            Demo: admin@sparkleclean.com / Florida2026!
+            Demo: admin@sparkleclean.co.ke / Nairobi2026!
           </p>
         </div>
       </motion.div>

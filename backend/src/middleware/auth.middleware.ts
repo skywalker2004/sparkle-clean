@@ -7,10 +7,17 @@ interface JwtPayload {
   role: string;
 }
 
+export interface AuthRequest extends Request {
+  userId?: string;
+}
+
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token: string | undefined;
 
-  if (req.cookies.jwt) {
+  // Check Authorization header first (Bearer token)
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    token = req.headers.authorization.slice(7); // Remove 'Bearer ' prefix
+  } else if (req.cookies?.jwt) {
     token = req.cookies.jwt;
   }
 
@@ -20,11 +27,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    const user = await User.findById(decoded.userId).select('-password');
-    if (!user) {
-      return res.status(401).json({ message: 'Not authorized, user not found' });
-    }
-    (req as any).user = user; // Attach user to req (use any for now, or extend Request)
+    (req as AuthRequest).userId = decoded.id;
     next();
   } catch (error) {
     res.status(401).json({ message: 'Not authorized, token failed' });
