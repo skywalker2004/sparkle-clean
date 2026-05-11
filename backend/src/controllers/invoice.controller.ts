@@ -4,20 +4,28 @@ import Client from '../models/Client.model';
 import { AuthRequest } from '../types';
 
 export const getInvoices = async (req: AuthRequest, res: Response) => {
-  const { status, month, client } = req.query;
+  try {
+    const { status, month, client } = req.query;
 
-  const query: any = {};
-  if (status) query.status = status;
-  if (client) query.client = client;
-  if (month) {
-    const [year, mon] = (month as string).split('-');
-    const start = new Date(Number(year), Number(mon) - 1, 1);
-    const end = new Date(Number(year), Number(mon), 0);
-    query.dueDate = { $gte: start, $lte: end };
+    const query: any = {};
+    if (status) query.status = status;
+    if (client) query.client = client;
+    if (month) {
+      const [year, mon] = (month as string).split('-');
+      const start = new Date(Number(year), Number(mon) - 1, 1);
+      const end = new Date(Number(year), Number(mon), 0);
+      query.dueDate = { $gte: start, $lte: end };
+    }
+
+    const invoices = await Invoice.find(query).lean();
+    res.json(invoices.map(inv => ({
+      id: inv._id,
+      ...inv,
+    })));
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).json({ message: 'Failed to fetch invoices' });
   }
-
-  const invoices = await Invoice.find(query).populate('client', 'name');
-  res.json(invoices);
 };
 
 export const markPaid = async (req: AuthRequest, res: Response) => {
