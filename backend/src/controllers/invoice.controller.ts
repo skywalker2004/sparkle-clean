@@ -67,9 +67,34 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
   ]);
 
   res.json({
-    activeClients,
+    totalActiveClients: activeClients,
     revenueThisMonth: revenueThisMonth[0]?.total || 0,
-    outstanding: outstanding[0]?.total || 0,
+    outstandingBalance: outstanding[0]?.total || 0,
+    upcomingThisWeek: 0,
     monthlyRevenue: monthlyRevenueLast6,
   });
+};
+
+export const getMonthlyRevenue = async (req: AuthRequest, res: Response) => {
+  const now = new Date();
+  
+  const monthlyRevenueLast6 = await Invoice.aggregate([
+    {
+      $match: {
+        paidDate: { $gte: new Date(now.getFullYear(), now.getMonth() - 6, 1) },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m', date: '$paidDate' } },
+        total: { $sum: '$amount' },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  res.json(monthlyRevenueLast6.map((item: any) => ({
+    month: item._id,
+    revenue: item.total,
+  })));
 };
