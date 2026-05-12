@@ -5,10 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.admin = exports.protect = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_model_1 = __importDefault(require("../models/User.model")); // FIXED: Use correct path (add .model if file is named User.model.ts)
+const User_model_1 = __importDefault(require("../models/User.model"));
 const protect = async (req, res, next) => {
     let token;
-    if (req.cookies.jwt) {
+    // Check Authorization header first (Bearer token)
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.slice(7); // Remove 'Bearer ' prefix
+    }
+    else if (req.cookies?.jwt) {
         token = req.cookies.jwt;
     }
     if (!token) {
@@ -16,11 +20,14 @@ const protect = async (req, res, next) => {
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        const user = await User_model_1.default.findById(decoded.userId).select('-password');
+        const user = await User_model_1.default.findById(decoded.id).select('-password');
         if (!user) {
-            return res.status(401).json({ message: 'Not authorized, user not found' });
+            return res.status(401).json({ message: 'User not found' });
         }
-        req.user = user; // Attach user to req (use any for now, or extend Request)
+        req.user = {
+            _id: user._id,
+            role: user.role,
+        };
         next();
     }
     catch (error) {
@@ -29,7 +36,8 @@ const protect = async (req, res, next) => {
 };
 exports.protect = protect;
 const admin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
+    const user = req.user;
+    if (user && user.role === 'admin') {
         next();
     }
     else {
