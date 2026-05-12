@@ -51,7 +51,6 @@ const clientSchema = z.object({
   status: z.enum(["active", "inactive"]),
   notes: z.string().max(500).optional(),
   preferredDay: z.enum(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']),
-  contactPhone: z.string().min(1, 'Contact phone is required'),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -78,7 +77,6 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           status: client.status,
           notes: client.notes,
           preferredDay: client.preferredDay,
-          contactPhone: client.contactPhone,
         }
       : {
           serviceType: "Standard",
@@ -86,7 +84,6 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           status: "active",
           pricePerVisit: 3500,
           preferredDay: 'Monday',
-          contactPhone: '',
         },
   });
 
@@ -107,7 +104,6 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           status: data.status,
           notes: data.notes || "",
           preferredDay: data.preferredDay,
-          contactPhone: data.contactPhone,
           lastCleanedDate: null,
           createdBy: user?.id ?? "",
         });
@@ -150,11 +146,6 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
             )}
           />
           {errors.preferredDay && <p className="text-xs text-destructive">{errors.preferredDay.message}</p>}
-        </div>
-        <div className="space-y-1.5">
-          <Label>Contact Phone for Booking *</Label>
-          <Input {...register("contactPhone")} placeholder="+254 7XX XXX XXX" />
-          {errors.contactPhone && <p className="text-xs text-destructive">{errors.contactPhone.message}</p>}
         </div>
         <div className="space-y-1.5">
           <Label>Email Address</Label>
@@ -426,12 +417,6 @@ export default function ClientsPage() {
                       <div className="flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5" />{c.phone}
                       </div>
-                      {c.contactPhone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-3.5 h-3.5" />
-                          <span className="text-xs">Booking: {c.contactPhone}</span>
-                        </div>
-                      )}
                       {c.email && (
                         <div className="flex items-center gap-2">
                           <Mail className="w-3.5 h-3.5" />{c.email}
@@ -440,6 +425,15 @@ export default function ClientsPage() {
                       <div className="flex items-center gap-2">
                         <MapPin className="w-3.5 h-3.5" />
                         <span className="truncate">{c.address}</span>
+                      </div>
+                      <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded border border-blue-200 dark:border-blue-800/30 text-xs">
+                        <p className="font-semibold text-blue-600 dark:text-blue-400">📞 Call for Bookings</p>
+                        <p className="text-blue-700 dark:text-blue-300 font-mono text-sm mt-1">0768 362 805</p>
+                        {c.lastCleanedDate && (
+                          <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+                            Last cleaned: {format(new Date(c.lastCleanedDate), "MMM d, yyyy")}
+                          </p>
+                        )}
                       </div>
                       <div className="text-xs pt-1">
                         Preferred: {c.preferredDay}
