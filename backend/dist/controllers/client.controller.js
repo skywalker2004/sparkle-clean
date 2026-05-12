@@ -43,7 +43,9 @@ const createClient = async (req, res) => {
 };
 exports.createClient = createClient;
 const updateClient = async (req, res) => {
-    const client = await Client_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { name, phone, email, address, serviceType, pricePerVisit, frequency, lastCleanedDate, status, notes } = req.body;
+    const updateData = { name, phone, email, address, serviceType, pricePerVisit, frequency, lastCleanedDate, status, notes };
+    const client = await Client_model_1.default.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!client)
         return res.status(404).json({ message: 'Client not found' });
     res.json(client);
