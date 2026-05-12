@@ -32,14 +32,16 @@ export const getClient = async (req: AuthRequest, res: Response) => {
 };
 
 export const createClient = async (req: AuthRequest, res: Response) => {
-  const clientData: ClientData = { ...req.body, createdBy: req.user!._id };
+  const clientData = { ...req.body, createdBy: req.user!._id };
   const client = new Client(clientData);
   await client.save();
   res.status(201).json(client);
 };
 
 export const updateClient = async (req: AuthRequest, res: Response) => {
-  const client = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const { name, phone, email, address, serviceType, pricePerVisit, frequency, lastCleanedDate, status, notes } = req.body;
+  const updateData = { name, phone, email, address, serviceType, pricePerVisit, frequency, lastCleanedDate, status, notes };
+  const client = await Client.findByIdAndUpdate(req.params.id, updateData, { new: true });
   if (!client) return res.status(404).json({ message: 'Client not found' });
   res.json(client);
 };

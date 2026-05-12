@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model";
-import { AuthRequest } from "../middleware/auth.middleware";
+import { AuthRequest } from "../types";
 
 const generateToken = (id: string, role: string): string => {
   return jwt.sign(
@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const getMe = async (req: AuthRequest, res: Response) => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.user?._id).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

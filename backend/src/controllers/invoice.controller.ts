@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import Invoice from '../models/Invoice.model';
 import Client from '../models/Client.model';
-import { AuthRequest } from '../types';
+import { AuthRequest, InvoiceData } from '../types';
 
 export const getInvoices = async (req: AuthRequest, res: Response) => {
   try {
@@ -25,6 +25,35 @@ export const getInvoices = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error('Error fetching invoices:', error);
     res.status(500).json({ message: 'Failed to fetch invoices' });
+  }
+};
+
+export const createInvoice = async (req: AuthRequest, res: Response) => {
+  try {
+    const { client, amount, dueDate, notes } = req.body as InvoiceData;
+
+    const clientDoc = await Client.findById(client);
+    if (!clientDoc) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+
+    const invoiceNumber = `INV-${new Date().toISOString().slice(0, 7).replace('-', '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+
+    const invoice = new Invoice({
+      client,
+      clientName: clientDoc.name,
+      invoiceNumber,
+      amount,
+      dueDate,
+      status: 'unpaid',
+      notes,
+    });
+
+    await invoice.save();
+    res.status(201).json(invoice);
+  } catch (error) {
+    console.error('Error creating invoice:', error);
+    res.status(500).json({ message: 'Failed to create invoice' });
   }
 };
 
