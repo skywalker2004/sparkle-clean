@@ -12,7 +12,6 @@ interface IClient extends mongoose.Document {
   status: 'active' | 'inactive';
   notes?: string;
   preferredDay: 'Monday'|'Tuesday'|'Wednesday'|'Thursday'|'Friday'|'Saturday'|'Sunday';
-  contactPhone: string;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -31,7 +30,6 @@ const ClientSchema: Schema = new Schema(
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     notes: { type: String },
     preferredDay: { type: String, enum: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], default: 'Monday' },
-    contactPhone: { type: String, default: '' },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }
