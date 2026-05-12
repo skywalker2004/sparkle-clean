@@ -46,7 +46,6 @@ const ClientSchema = new mongoose_1.Schema({
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     notes: { type: String },
     preferredDay: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], default: 'Monday' },
-    contactPhone: { type: String, default: '' },
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 ClientSchema.index({ name: 'text', phone: 'text', address: 'text' }); // For search
