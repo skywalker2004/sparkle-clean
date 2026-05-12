@@ -26,7 +26,6 @@ export interface Client {
   status: ClientStatus;
   notes: string;
   preferredDay: 'Monday'|'Tuesday'|'Wednesday'|'Thursday'|'Friday'|'Saturday'|'Sunday';
-  contactPhone: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
