@@ -22,27 +22,35 @@ export const getUpcoming = async (req: AuthRequest, res: Response) => {
 };
 
 export const completeCleaning = async (req: AuthRequest, res: Response) => {
-  const { clientId, completedDate, notes } = req.body;
+  try {
+    const { clientId, completedDate, date, notes } = req.body;
+    const cleaningDate = completedDate || date;
 
-  const client = await Client.findById(clientId);
-  if (!client) return res.status(404).json({ message: 'Client not found' });
+    if (!clientId) return res.status(400).json({ message: 'clientId is required' });
+    if (!cleaningDate) return res.status(400).json({ message: 'date is required' });
 
-  client.lastCleanedDate = new Date(completedDate);
-  await client.save();
+    const client = await Client.findById(clientId);
+    if (!client) return res.status(404).json({ message: 'Client not found' });
 
-  // Auto-create invoice
-  const invoiceNumber = `INV-${new Date().toISOString().slice(0, 7).replace('-', '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+    client.lastCleanedDate = new Date(cleaningDate);
+    await client.save();
 
-  const invoice = new Invoice({
-    client: client._id,
-    clientName: client.name,
-    invoiceNumber,
-    amount: client.pricePerVisit,
-    dueDate: new Date(completedDate),
-    status: 'unpaid',
-    notes,
-  });
-  await invoice.save();
+    // Auto-create invoice
+    const invoiceNumber = `INV-${new Date().toISOString().slice(0, 7).replace('-', '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
 
-  res.json({ message: 'Cleaning completed, invoice created', invoice });
+    const invoice = new Invoice({
+      client: client._id,
+      clientName: client.name,
+      invoiceNumber,
+      amount: client.pricePerVisit,
+      dueDate: new Date(cleaningDate),
+      status: 'unpaid',
+      notes,
+    });
+    await invoice.save();
+
+    res.json({ message: 'Cleaning completed, invoice created', invoice });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error recording cleaning', error: error.message });
+  }
 };
