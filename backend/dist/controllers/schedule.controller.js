@@ -35,6 +35,7 @@ const completeCleaning = async (req, res) => {
     const invoiceNumber = `INV-${new Date().toISOString().slice(0, 7).replace('-', '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
     const invoice = new Invoice_model_1.default({
         client: client._id,
+        clientName: client.name,
         invoiceNumber,
         amount: client.pricePerVisit,
         dueDate: new Date(completedDate),
