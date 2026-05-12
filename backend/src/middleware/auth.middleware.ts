@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.model';  // FIXED: Use correct path (add .model if file is named User.model.ts)
+import User from '../models/User.model';
+import { AuthRequest } from '../types';
 
 interface JwtPayload {
-  userId: string;
+  id: string;
   role: string;
-}
-
-export interface AuthRequest extends Request {
-  userId?: string;
 }
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +24,14 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    (req as AuthRequest).userId = decoded.id;
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    (req as AuthRequest).user = {
+      _id: user._id,
+      role: user.role as 'admin' | 'staff',
+    };
     next();
   } catch (error) {
     res.status(401).json({ message: 'Not authorized, token failed' });
@@ -35,7 +39,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 };
 
 export const admin = (req: Request, res: Response, next: NextFunction) => {
-  if ((req as any).user && (req as any).user.role === 'admin') {
+  const user = (req as AuthRequest).user;
+  if (user && user.role === 'admin') {
     next();
   } else {
     res.status(403).json({ message: 'Not authorized as admin' });

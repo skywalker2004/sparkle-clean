@@ -35,6 +35,7 @@ export const completeCleaning = async (req: AuthRequest, res: Response) => {
 
   const invoice = new Invoice({
     client: client._id,
+    clientName: client.name,
     invoiceNumber,
     amount: client.pricePerVisit,
     dueDate: new Date(completedDate),
