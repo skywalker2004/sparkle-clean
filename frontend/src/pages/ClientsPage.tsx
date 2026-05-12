@@ -50,6 +50,8 @@ const clientSchema = z.object({
   frequency: z.enum(["weekly", "biweekly", "monthly"]),
   status: z.enum(["active", "inactive"]),
   notes: z.string().max(500).optional(),
+  preferredDay: z.enum(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']),
+  contactPhone: z.string().min(1, 'Contact phone is required'),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -75,12 +77,16 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           frequency: client.frequency,
           status: client.status,
           notes: client.notes,
+          preferredDay: client.preferredDay,
+          contactPhone: client.contactPhone,
         }
       : {
           serviceType: "Standard",
           frequency: "weekly",
           status: "active",
           pricePerVisit: 3500,
+          preferredDay: 'Monday',
+          contactPhone: '',
         },
   });
 
@@ -100,6 +106,8 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           frequency: data.frequency,
           status: data.status,
           notes: data.notes || "",
+          preferredDay: data.preferredDay,
+          contactPhone: data.contactPhone,
           lastCleanedDate: null,
           createdBy: user?.id ?? "",
         });
@@ -124,6 +132,29 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           <Label>Phone Number *</Label>
           <Input {...register("phone")} placeholder="+254 7XX XXX XXX" />
           {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <Label>Preferred Day</Label>
+          <Controller
+            name="preferredDay"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
+                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.preferredDay && <p className="text-xs text-destructive">{errors.preferredDay.message}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <Label>Contact Phone for Booking *</Label>
+          <Input {...register("contactPhone")} placeholder="+254 7XX XXX XXX" />
+          {errors.contactPhone && <p className="text-xs text-destructive">{errors.contactPhone.message}</p>}
         </div>
         <div className="space-y-1.5">
           <Label>Email Address</Label>
@@ -395,6 +426,12 @@ export default function ClientsPage() {
                       <div className="flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5" />{c.phone}
                       </div>
+                      {c.contactPhone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5" />
+                          <span className="text-xs">Booking: {c.contactPhone}</span>
+                        </div>
+                      )}
                       {c.email && (
                         <div className="flex items-center gap-2">
                           <Mail className="w-3.5 h-3.5" />{c.email}
@@ -403,6 +440,9 @@ export default function ClientsPage() {
                       <div className="flex items-center gap-2">
                         <MapPin className="w-3.5 h-3.5" />
                         <span className="truncate">{c.address}</span>
+                      </div>
+                      <div className="text-xs pt-1">
+                        Preferred: {c.preferredDay}
                       </div>
                     </div>
                     <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-sm">
