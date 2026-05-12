@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const InvoiceSchema = new mongoose_1.Schema({
     client: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Client', required: true },
+    clientName: { type: String, required: true },
     invoiceNumber: { type: String, required: true, unique: true },
     amount: { type: Number, required: true, min: 0 },
     dueDate: { type: Date, required: true },
