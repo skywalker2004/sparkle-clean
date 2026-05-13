@@ -32,7 +32,7 @@ export const getClient = async (req: AuthRequest, res: Response) => {
 };
 
 export const createClient = async (req: AuthRequest, res: Response) => {
-  const clientData = { ...req.body, createdBy: req.user!._id };
+  const clientData = { ...req.body, createdBy: req.user!._id, dateAdded: new Date() };
   const client = new Client(clientData);
   await client.save();
   res.status(201).json(client);
