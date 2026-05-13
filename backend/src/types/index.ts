@@ -17,6 +17,7 @@ export interface ClientData {
   pricePerVisit: number;
   frequency: 'weekly' | 'biweekly' | 'monthly';
   lastCleanedDate?: Date;
+  dateAdded?: Date;
   status: 'active' | 'inactive';
   notes?: string;
 }
