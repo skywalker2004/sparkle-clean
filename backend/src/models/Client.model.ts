@@ -9,6 +9,7 @@ interface IClient extends mongoose.Document {
   pricePerVisit: number;
   frequency: 'weekly' | 'biweekly' | 'monthly';
   lastCleanedDate?: Date;
+  dateAdded: Date;
   status: 'active' | 'inactive';
   notes?: string;
   preferredDay: 'Monday'|'Tuesday'|'Wednesday'|'Thursday'|'Friday'|'Saturday'|'Sunday';
@@ -27,6 +28,7 @@ const ClientSchema: Schema = new Schema(
     pricePerVisit: { type: Number, required: true, min: 0 },
     frequency: { type: String, enum: ['weekly', 'biweekly', 'monthly'], required: true },
     lastCleanedDate: { type: Date },
+    dateAdded: { type: Date, required: true, default: Date.now },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     notes: { type: String },
     preferredDay: { type: String, enum: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], default: 'Monday' },
