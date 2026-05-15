@@ -50,6 +50,7 @@ const clientSchema = z.object({
   frequency: z.enum(["weekly", "biweekly", "monthly"]),
   status: z.enum(["active", "inactive"]),
   notes: z.string().max(500).optional(),
+  startDate: z.string().min(1, 'Start date is required'),
   preferredDay: z.enum(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']),
 });
 
@@ -456,3 +457,4 @@ export default function ClientsPage() {
     </div>
   );
 }
+
