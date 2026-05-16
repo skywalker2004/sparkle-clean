@@ -1,4 +1,4 @@
-﻿import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientsApi, getNextCleaningDate, exportToCSV } from "@/lib/api";
 import { Client } from "@/types";
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Download, Pencil, Trash2, Phone, Mail, MapPin, Home } from "lucide-react";
+import { Plus, Search, Download, Pencil, Trash2, Phone, Mail, MapPin, Home, CalendarDays } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -50,8 +50,8 @@ const clientSchema = z.object({
   frequency: z.enum(["weekly", "biweekly", "monthly"]),
   status: z.enum(["active", "inactive"]),
   notes: z.string().max(500).optional(),
-  startDate: z.string().min(1, 'Start date is required'),
-  preferredDay: z.enum(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']),
+  preferredDay: z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
+  startDate: z.string().min(1, "Start date is required"),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -77,14 +77,16 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           frequency: client.frequency,
           status: client.status,
           notes: client.notes,
-          preferredDay: client.preferredDay,
+          preferredDay: client.preferredDay ?? "Monday",
+          startDate: client.startDate ?? new Date().toISOString().split("T")[0],
         }
       : {
           serviceType: "Standard",
           frequency: "weekly",
           status: "active",
           pricePerVisit: 3500,
-          preferredDay: 'Monday',
+          preferredDay: "Monday",
+          startDate: new Date().toISOString().split("T")[0],
         },
   });
 
@@ -105,6 +107,7 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           status: data.status,
           notes: data.notes || "",
           preferredDay: data.preferredDay,
+          startDate: data.startDate,
           lastCleanedDate: null,
           createdBy: user?.id ?? "",
         });
@@ -120,16 +123,22 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        {/* Full Name */}
         <div className="space-y-1.5">
           <Label>Full Name *</Label>
           <Input {...register("name")} placeholder="e.g. Wanjiru Kamau" />
           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
         </div>
+
+        {/* Phone Number */}
         <div className="space-y-1.5">
           <Label>Phone Number *</Label>
           <Input {...register("phone")} placeholder="+254 7XX XXX XXX" />
           {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
         </div>
+
+        {/* Preferred Day */}
         <div className="space-y-1.5">
           <Label>Preferred Day</Label>
           <Controller
@@ -139,7 +148,7 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
+                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(d => (
                     <SelectItem key={d} value={d}>{d}</SelectItem>
                   ))}
                 </SelectContent>
@@ -148,16 +157,35 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           />
           {errors.preferredDay && <p className="text-xs text-destructive">{errors.preferredDay.message}</p>}
         </div>
+
+        {/* Start Date — right after Preferred Day */}
+        <div className="space-y-1.5">
+          <Label>Start Date *</Label>
+          <Input
+            type="date"
+            {...register("startDate")}
+            className="w-full"
+          />
+          {errors.startDate && (
+            <p className="text-xs text-destructive">{errors.startDate.message}</p>
+          )}
+        </div>
+
+        {/* Email */}
         <div className="space-y-1.5">
           <Label>Email Address</Label>
           <Input {...register("email")} placeholder="client@example.com" />
           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
+
+        {/* Price */}
         <div className="space-y-1.5">
           <Label>Price per Visit (KSh) *</Label>
           <Input type="number" step="100" {...register("pricePerVisit")} placeholder="e.g. 3500" />
           {errors.pricePerVisit && <p className="text-xs text-destructive">{errors.pricePerVisit.message}</p>}
         </div>
+
+        {/* Address */}
         <div className="sm:col-span-2 space-y-1.5">
           <Label>Location / Address *</Label>
           <Input {...register("address")} placeholder="e.g. Westlands, Nairobi" list="nairobi-areas" />
@@ -166,6 +194,8 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           </datalist>
           {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
         </div>
+
+        {/* Service Type */}
         <div className="space-y-1.5">
           <Label>Service Type</Label>
           <Controller
@@ -183,6 +213,8 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
             )}
           />
         </div>
+
+        {/* Frequency */}
         <div className="space-y-1.5">
           <Label>Cleaning Frequency</Label>
           <Controller
@@ -200,6 +232,8 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
             )}
           />
         </div>
+
+        {/* Status */}
         <div className="space-y-1.5">
           <Label>Status</Label>
           <Controller
@@ -216,14 +250,17 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
             )}
           />
         </div>
+
+        {/* Notes */}
         <div className="sm:col-span-2 space-y-1.5">
           <Label>Notes</Label>
           <Textarea
             {...register("notes")}
-            placeholder="Special instructions, gate code, access detailsâ€¦"
+            placeholder="Special instructions, gate code, access details…"
             rows={3}
           />
         </div>
+
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
@@ -271,6 +308,8 @@ export default function ClientsPage() {
         pricePerVisit_KSh: c.pricePerVisit,
         frequency: c.frequency,
         status: c.status,
+        preferredDay: c.preferredDay,
+        startDate: c.startDate,
       })),
       "sparkleclean-clients.csv"
     );
@@ -315,7 +354,7 @@ export default function ClientsPage() {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name, phone, or locationâ€¦"
+          placeholder="Search by name, phone, or location…"
           className="pl-10"
           value={search}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
@@ -414,6 +453,7 @@ export default function ClientsPage() {
                         </AlertDialog>
                       </div>
                     </div>
+
                     <div className="space-y-1.5 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5" />{c.phone}
@@ -427,8 +467,19 @@ export default function ClientsPage() {
                         <MapPin className="w-3.5 h-3.5" />
                         <span className="truncate">{c.address}</span>
                       </div>
+
+                      {/* Preferred Day + Start Date */}
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        <span>
+                          {c.preferredDay ?? "—"}
+                          {c.startDate ? ` · Started ${format(new Date(c.startDate), "MMM d, yyyy")}` : ""}
+                        </span>
+                      </div>
+
+                      {/* Call for Bookings */}
                       <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded border border-blue-200 dark:border-blue-800/30 text-xs">
-                        <p className="font-semibold text-blue-600 dark:text-blue-400">ðŸ“ž Call for Bookings</p>
+                        <p className="font-semibold text-blue-600 dark:text-blue-400">📞 Call for Bookings</p>
                         <p className="text-blue-700 dark:text-blue-300 font-mono text-sm mt-1">0768 362 805</p>
                         {c.lastCleanedDate && (
                           <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
@@ -436,12 +487,10 @@ export default function ClientsPage() {
                           </p>
                         )}
                       </div>
-                      <div className="text-xs pt-1">
-                        Preferred: {c.preferredDay}
-                      </div>
                     </div>
+
                     <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{c.serviceType} Â· {c.frequency}</span>
+                      <span className="text-muted-foreground">{c.serviceType} · {c.frequency}</span>
                       <span className="font-semibold text-foreground">{formatKES(c.pricePerVisit)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
@@ -457,5 +506,3 @@ export default function ClientsPage() {
     </div>
   );
 }
-
-
