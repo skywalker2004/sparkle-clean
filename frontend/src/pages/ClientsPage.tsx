@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+﻿import { useState, type ChangeEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientsApi, getNextCleaningDate, exportToCSV } from "@/lib/api";
 import { Client } from "@/types";
@@ -220,7 +220,7 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           <Label>Notes</Label>
           <Textarea
             {...register("notes")}
-            placeholder="Special instructions, gate code, access details…"
+            placeholder="Special instructions, gate code, access detailsâ€¦"
             rows={3}
           />
         </div>
@@ -315,7 +315,7 @@ export default function ClientsPage() {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name, phone, or location…"
+          placeholder="Search by name, phone, or locationâ€¦"
           className="pl-10"
           value={search}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
@@ -428,7 +428,7 @@ export default function ClientsPage() {
                         <span className="truncate">{c.address}</span>
                       </div>
                       <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded border border-blue-200 dark:border-blue-800/30 text-xs">
-                        <p className="font-semibold text-blue-600 dark:text-blue-400">📞 Call for Bookings</p>
+                        <p className="font-semibold text-blue-600 dark:text-blue-400">ðŸ“ž Call for Bookings</p>
                         <p className="text-blue-700 dark:text-blue-300 font-mono text-sm mt-1">0768 362 805</p>
                         {c.lastCleanedDate && (
                           <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
@@ -441,7 +441,7 @@ export default function ClientsPage() {
                       </div>
                     </div>
                     <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{c.serviceType} · {c.frequency}</span>
+                      <span className="text-muted-foreground">{c.serviceType} Â· {c.frequency}</span>
                       <span className="font-semibold text-foreground">{formatKES(c.pricePerVisit)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
@@ -457,4 +457,5 @@ export default function ClientsPage() {
     </div>
   );
 }
+
 
