@@ -90,7 +90,12 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
         },
   });
 
+  const startDate = watch("startDate");
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const autoDay = startDate ? days[new Date(startDate).getDay()] : null;
+
   const onSubmit = async (data: ClientFormData) => {
+    if (autoDay) data.preferredDay = autoDay as ClientFormData["preferredDay"];
     try {
       if (client) {
         await clientsApi.update(client.id, data);
