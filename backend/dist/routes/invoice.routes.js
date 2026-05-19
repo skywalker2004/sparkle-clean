@@ -16,3 +16,4 @@ router.put('/mark-paid', invoice_controller_1.markPaid);
 router.get('/dashboard-stats', invoice_controller_1.getDashboardStats);
 router.get('/monthly-revenue', invoice_controller_1.getMonthlyRevenue);
 exports.default = router;
+//# sourceMappingURL=invoice.routes.js.map

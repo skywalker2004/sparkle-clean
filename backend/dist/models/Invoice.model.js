@@ -46,3 +46,4 @@ const InvoiceSchema = new mongoose_1.Schema({
 }, { timestamps: true });
 InvoiceSchema.index({ client: 1, dueDate: -1 }); // For queries
 exports.default = mongoose_1.default.model('Invoice', InvoiceSchema);
+//# sourceMappingURL=Invoice.model.js.map
