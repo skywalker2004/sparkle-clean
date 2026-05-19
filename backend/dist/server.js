@@ -13,6 +13,7 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const client_routes_1 = __importDefault(require("./routes/client.routes"));
 const invoice_routes_1 = __importDefault(require("./routes/invoice.routes"));
 const schedule_routes_1 = __importDefault(require("./routes/schedule.routes"));
+const booking_routes_1 = __importDefault(require("./routes/booking.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = Number(process.env.PORT) || 5000;
@@ -39,6 +40,7 @@ app.use("/api/auth", auth_routes_1.default);
 app.use("/api/clients", client_routes_1.default);
 app.use("/api/invoices", invoice_routes_1.default);
 app.use("/api/schedule", schedule_routes_1.default);
+app.use("/api/bookings", booking_routes_1.default);
 app.use((req, res) => {
     res.status(404).json({ message: `Route ${req.method} ${req.path} not found` });
 });
@@ -51,3 +53,4 @@ const startServer = async () => {
     });
 };
 startServer();
+//# sourceMappingURL=server.js.map
