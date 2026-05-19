@@ -113,6 +113,24 @@ export default function LoginPage() {
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {loading ? "Signing in…" : "Sign In"}
             </Button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/20"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-slate-900 text-white/60">Or</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 font-semibold border-white/30 text-white hover:bg-white/10"
+              onClick={() => window.location.href = "/book"}
+            >
+              Book a Cleaning Service
+            </Button>
           </form>
         </div>
       </motion.div>
