@@ -36,7 +36,7 @@ const getClient = async (req, res) => {
 };
 exports.getClient = getClient;
 const createClient = async (req, res) => {
-    const clientData = { ...req.body, createdBy: req.user._id };
+    const clientData = { ...req.body, createdBy: req.user._id, dateAdded: new Date() };
     const client = new Client_model_1.default(clientData);
     await client.save();
     res.status(201).json(client);
@@ -58,3 +58,4 @@ const deleteClient = async (req, res) => {
     res.json({ message: 'Client deleted' });
 };
 exports.deleteClient = deleteClient;
+//# sourceMappingURL=client.controller.js.map

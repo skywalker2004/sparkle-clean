@@ -14,3 +14,4 @@ router.post('/', client_controller_1.createClient);
 router.put('/:id', client_controller_1.updateClient);
 router.delete('/:id', auth_middleware_1.admin, client_controller_1.deleteClient); // Admin only
 exports.default = router;
+//# sourceMappingURL=client.routes.js.map
