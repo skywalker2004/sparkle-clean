@@ -3,6 +3,8 @@ export type ServiceType = "Standard" | "Deep Clean" | "Move-In/Out" | "Other";
 export type Frequency = "weekly" | "biweekly" | "monthly";
 export type ClientStatus = "active" | "inactive";
 export type InvoiceStatus = "unpaid" | "paid";
+export type BookingStatus = "pending" | "confirmed" | "cancelled";
+export type PreferredTime = "Morning 8am-12pm" | "Afternoon 12pm-5pm" | "Evening 5pm-8pm";
 
 export interface User {
   id: string;
@@ -66,5 +68,21 @@ export interface DashboardStats {
 export interface MonthlyRevenue {
   month: string;
   revenue: number;
+}
+
+export interface Booking {
+  id: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  address: string;
+  serviceType: ServiceType;
+  preferredDate: string;
+  preferredTime: PreferredTime;
+  notes?: string;
+  status: BookingStatus;
+  bookingRef: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
