@@ -45,3 +45,4 @@ const admin = (req, res, next) => {
     }
 };
 exports.admin = admin;
+//# sourceMappingURL=auth.middleware.js.map
