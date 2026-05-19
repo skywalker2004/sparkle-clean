@@ -43,23 +43,15 @@ const clientSchema = z.object({
   status: z.enum(["active", "inactive"]),
   notes: z.string().max(500).optional(),
   preferredDay: z.enum(["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]),
-  startDate: z.string().min(1, "Start date is required"),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
-
-function getAutoDay(dateStr: string): typeof DAYS[number] {
-  if (!dateStr) return "Monday";
-  return DAYS[new Date(dateStr).getDay()];
-}
 
 function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () => void }) {
   const qc = useQueryClient();
   const { user } = useAuth();
 
-  const today = new Date().toISOString().split("T")[0];
-
-  const { register, handleSubmit, watch, control, formState: { errors, isSubmitting } } = useForm<ClientFormData>({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema) as any,
     defaultValues: client ? {
       name: client.name,
@@ -71,23 +63,17 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
       frequency: client.frequency,
       status: client.status,
       notes: client.notes,
-      startDate: client.startDate ?? today,
-      preferredDay: client.preferredDay ?? getAutoDay(client.startDate ?? today),
+      preferredDay: client.preferredDay ?? "Monday",
     } : {
       serviceType: "Standard",
       frequency: "weekly",
       status: "active",
       pricePerVisit: 3500,
-      startDate: today,
-      preferredDay: getAutoDay(today),
+      preferredDay: "Monday",
     },
   });
 
-  const startDate = watch("startDate");
-  const autoDay = getAutoDay(startDate);
-
   const onSubmit = async (data: ClientFormData) => {
-    data.preferredDay = autoDay;
     try {
       if (client) {
         await clientsApi.update(client.id, data);
@@ -103,8 +89,7 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
           frequency: data.frequency,
           status: data.status,
           notes: data.notes || "",
-          preferredDay: autoDay,
-          startDate: data.startDate,
+          preferredDay: data.preferredDay,
           lastCleanedDate: null,
           createdBy: user?.id ?? "",
         });
@@ -134,16 +119,18 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
         </div>
 
         <div className="space-y-1.5">
-          <Label>Start Date *</Label>
-          <Input type="date" {...register("startDate")} className="w-full" />
-          {errors.startDate && <p className="text-xs text-destructive">{errors.startDate.message}</p>}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>Preferred Day</Label>
-          <div className="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 text-sm">
-            <span className="text-foreground font-medium">?? {autoDay}</span>
-          </div>
+          <Label>Preferred Day *</Label>
+          <Controller name="preferredDay" control={control} render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {DAYS.map(day => (
+                  <SelectItem key={day} value={day}>{day}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )} />
+          {errors.preferredDay && <p className="text-xs text-destructive">{errors.preferredDay.message}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -210,7 +197,7 @@ function ClientFormDialog({ client, onClose }: { client?: Client; onClose: () =>
 
         <div className="sm:col-span-2 space-y-1.5">
           <Label>Notes</Label>
-          <Textarea {...register("notes")} placeholder="Special instructions, gate code, access details…" rows={3} />
+          <Textarea {...register("notes")} placeholder="Special instructions, gate code, access detailsï¿½" rows={3} />
         </div>
 
       </div>
@@ -247,7 +234,7 @@ export default function ClientsPage() {
       name: c.name, phone: c.phone, email: c.email, address: c.address,
       serviceType: c.serviceType, pricePerVisit_KSh: c.pricePerVisit,
       frequency: c.frequency, status: c.status,
-      preferredDay: c.preferredDay, startDate: c.startDate,
+      preferredDay: c.preferredDay,
     })), "sparkleclean-clients.csv");
     toast.success("Exported to CSV");
   };
@@ -279,7 +266,7 @@ export default function ClientsPage() {
 
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input placeholder="Search by name, phone, or location…" className="pl-10" value={search}
+        <Input placeholder="Search by name, phone, or locationï¿½" className="pl-10" value={search}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} />
       </div>
 
@@ -347,10 +334,7 @@ export default function ClientsPage() {
                       <div className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /><span className="truncate">{c.address}</span></div>
                       <div className="flex items-center gap-2">
                         <CalendarDays className="w-3.5 h-3.5" />
-                        <span>
-                          {c.preferredDay ?? "—"}
-                          {c.startDate ? ` · Started ${format(new Date(c.startDate), "MMM d, yyyy")}` : ""}
-                        </span>
+                        <span>{c.preferredDay ?? "ðŸ“…"}</span>
                       </div>
                       <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950/30 rounded border border-blue-200 dark:border-blue-800/30 text-xs">
                         <p className="font-semibold text-blue-600 dark:text-blue-400">?? Call for Bookings</p>
@@ -363,7 +347,7 @@ export default function ClientsPage() {
                       </div>
                     </div>
                     <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{c.serviceType} · {c.frequency}</span>
+                      <span className="text-muted-foreground">{c.serviceType} ï¿½ {c.frequency}</span>
                       <span className="font-semibold text-foreground">{formatKES(c.pricePerVisit)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
