@@ -122,3 +122,4 @@ const getMonthlyRevenue = async (req, res) => {
     })));
 };
 exports.getMonthlyRevenue = getMonthlyRevenue;
+//# sourceMappingURL=invoice.controller.js.map

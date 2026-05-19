@@ -11,3 +11,4 @@ router.use(auth_middleware_1.protect);
 router.get('/upcoming', schedule_controller_1.getUpcoming);
 router.post('/complete', schedule_controller_1.completeCleaning);
 exports.default = router;
+//# sourceMappingURL=schedule.routes.js.map

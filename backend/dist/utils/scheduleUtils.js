@@ -20,3 +20,4 @@ const calculateNextCleaning = (client) => {
     return new Date(last.setDate(last.getDate() + days));
 };
 exports.calculateNextCleaning = calculateNextCleaning;
+//# sourceMappingURL=scheduleUtils.js.map

@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { clientsApi, getNextCleaningDate, recordCleaning } from "@/lib/api";
-import { Client } from "@/types";
+import { clientsApi, getNextCleaningDate, recordCleaning, bookingsApi } from "@/lib/api";
+import { Client, Booking } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarDays, CheckCircle2, CalendarIcon, Sparkles } from "lucide-react";
+import { CalendarDays, CheckCircle2, CalendarIcon, Sparkles, Phone, MapPin } from "lucide-react";
 import {
   format, addDays, startOfDay, isWithinInterval,
   startOfWeek, endOfWeek, isSameDay,
@@ -30,10 +30,16 @@ export default function SchedulePage() {
     queryKey: ["clients"],
     queryFn: clientsApi.list,
   });
+  const { data: bookings = [], isLoading: bookingsLoading } = useQuery({
+    queryKey: ["bookings"],
+    queryFn: bookingsApi.list,
+  });
   const qc = useQueryClient();
+  const [activeTab, setActiveTab] = useState<"schedule" | "bookings">("schedule");
   const [recordDialog, setRecordDialog] = useState<Client | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [notes, setNotes] = useState("");
+  const [bookingStatusDialog, setBookingStatusDialog] = useState<Booking | null>(null);
 
   const now = new Date();
   const activeClients = (clients ?? []).filter(c => c.status === "active");
@@ -66,24 +72,68 @@ export default function SchedulePage() {
     }
   };
 
+  const handleUpdateBookingStatus = async (bookingId: string, newStatus: string) => {
+    try {
+      await bookingsApi.updateStatus(bookingId, newStatus);
+      toast.success(`Booking ${newStatus}`);
+      setBookingStatusDialog(null);
+      qc.invalidateQueries({ queryKey: ["bookings"] });
+    } catch {
+      toast.error("Failed to update booking status");
+    }
+  };
+
+  const pendingBookings = bookings.filter((b: Booking) => b.status === "pending");
+  const confirmedBookings = bookings.filter((b: Booking) => b.status === "confirmed");
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-display font-bold">Schedule</h1>
+        <h1 className="text-2xl font-display font-bold">Schedule & Bookings</h1>
         <p className="text-muted-foreground text-sm">
-          Week of {format(weekStart, "MMM d")} – {format(weekEnd, "MMM d, yyyy")}
+          Manage your cleaning schedule and pending bookings
         </p>
       </div>
 
-      {/* Weekly Calendar Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-border/50">
+        <button
+          onClick={() => setActiveTab("schedule")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            activeTab === "schedule"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <CalendarDays className="w-4 h-4 inline mr-2" />
+          Schedule
+        </button>
+        <button
+          onClick={() => setActiveTab("bookings")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            activeTab === "bookings"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Phone className="w-4 h-4 inline mr-2" />
+          Bookings {pendingBookings.length > 0 && <Badge className="ml-2">{pendingBookings.length}</Badge>}
+        </button>
+      </div>
+
+      {/* Schedule Tab */}
+      {activeTab === "schedule" && (
+        <>
+          {isLoading ? (
+            <div className="grid grid-cols-7 gap-2">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
           {weekDays.map((day, i) => {
             const dayItems = thisWeek.filter(u => isSameDay(u.nextDate, day));
             const isToday = isSameDay(day, now);
@@ -263,6 +313,176 @@ export default function SchedulePage() {
           )}
         </DialogContent>
       </Dialog>
+        </>
+      )}
+
+      {/* Bookings Tab */}
+      {activeTab === "bookings" && (
+        <div className="space-y-4">
+        {bookingsLoading ? (
+          <Skeleton className="h-40 rounded-lg" />
+        ) : (
+          <>
+            {/* Pending Bookings */}
+            {pendingBookings.length > 0 && (
+              <Card className="shadow-card border-border/50 border-orange-500/30 bg-orange-50/5 dark:bg-orange-950/10">
+                <CardHeader>
+                  <CardTitle className="text-lg font-display flex items-center gap-2">
+                    <span className="inline-block w-3 h-3 rounded-full bg-orange-500"></span>
+                    Pending Bookings ({pendingBookings.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {pendingBookings.map((booking: Booking) => (
+                    <motion.div
+                      key={booking.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-lg border border-orange-500/30 bg-muted/30 hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">{booking.fullName}</p>
+                          <Badge variant="outline" className="mt-1 text-xs">{booking.bookingRef}</Badge>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setBookingStatusDialog(booking)}
+                          >
+                            Confirm
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5" />
+                          {booking.phone}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {booking.address}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-3.5 h-3.5" />
+                          {format(new Date(booking.preferredDate), "MMM d, yyyy")} - {booking.preferredTime}
+                        </div>
+                        <p>Service: {booking.serviceType}</p>
+                        {booking.email && <p>Email: {booking.email}</p>}
+                        {booking.notes && <p className="text-xs italic">Notes: {booking.notes}</p>}
+                      </div>
+                    </motion.div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Confirmed Bookings */}
+            {confirmedBookings.length > 0 && (
+              <Card className="shadow-card border-border/50 border-green-500/30 bg-green-50/5 dark:bg-green-950/10">
+                <CardHeader>
+                  <CardTitle className="text-lg font-display flex items-center gap-2">
+                    <span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>
+                    Confirmed Bookings ({confirmedBookings.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {confirmedBookings.map((booking: Booking) => (
+                    <motion.div
+                      key={booking.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-lg border border-green-500/30 bg-muted/30"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">{booking.fullName}</p>
+                          <Badge className="mt-1 text-xs bg-green-600">Confirmed</Badge>
+                        </div>
+                      </div>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5" />
+                          {booking.phone}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {booking.address}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-3.5 h-3.5" />
+                          {format(new Date(booking.preferredDate), "MMM d, yyyy")} - {booking.preferredTime}
+                        </div>
+                        <p>Service: {booking.serviceType}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* No Bookings */}
+            {pendingBookings.length === 0 && confirmedBookings.length === 0 && (
+              <Card className="shadow-card border-border/50">
+                <CardContent className="pt-8 pb-8 text-center">
+                  <Phone className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                  <p className="text-muted-foreground">No bookings yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Bookings submitted through the public booking page will appear here
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
+      </div>
+      )}
+
+      {/* Update Booking Status Dialog */}
+      <Dialog
+        open={!!bookingStatusDialog}
+        onOpenChange={(v: boolean) => { if (!v) setBookingStatusDialog(null); }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Booking Status</DialogTitle>
+          </DialogHeader>
+          {bookingStatusDialog && (
+            <div className="space-y-4">
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="font-medium text-sm">{bookingStatusDialog.fullName}</p>
+                <p className="text-xs text-muted-foreground mt-1">{bookingStatusDialog.bookingRef}</p>
+                <p className="text-xs text-muted-foreground">{bookingStatusDialog.address}</p>
+                <p className="text-xs text-muted-foreground">{format(new Date(bookingStatusDialog.preferredDate), "MMM d, yyyy")}</p>
+              </div>
+              <div className="space-y-2">
+                <Button
+                  className="w-full"
+                  onClick={() => handleUpdateBookingStatus(bookingStatusDialog.id, "confirmed")}
+                >
+                  Confirm Booking
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => handleUpdateBookingStatus(bookingStatusDialog.id, "cancelled")}
+                >
+                  Cancel Booking
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setBookingStatusDialog(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
