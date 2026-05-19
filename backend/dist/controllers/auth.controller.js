@@ -67,3 +67,4 @@ const logout = async (req, res) => {
     res.json({ message: "Logged out successfully" });
 };
 exports.logout = logout;
+//# sourceMappingURL=auth.controller.js.map
