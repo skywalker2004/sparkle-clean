@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute, PublicBookingRoute } from "@/components/ProtectedRoute";
 import LoginPage from "@/pages/LoginPage";
 import BookingPage from "@/pages/BookingPage";
 import BookingConfirmPage from "@/pages/BookingConfirmPage";
@@ -34,14 +35,23 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/book" element={<BookingPage />} />
-            <Route path="/book/confirm" element={<BookingConfirmPage />} />
-            <Route element={<DashboardLayout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/clients" element={<ClientsPage />} />
-              <Route path="/invoices" element={<InvoicesPage />} />
-              <Route path="/schedule" element={<SchedulePage />} />
+            
+            {/* Public booking routes - redirects to dashboard if already logged in */}
+            <Route element={<PublicBookingRoute />}>
+              <Route path="/book" element={<BookingPage />} />
+              <Route path="/book/confirm" element={<BookingConfirmPage />} />
             </Route>
+
+            {/* Protected admin routes - redirects to login if not authenticated */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/clients" element={<ClientsPage />} />
+                <Route path="/invoices" element={<InvoicesPage />} />
+                <Route path="/schedule" element={<SchedulePage />} />
+              </Route>
+            </Route>
+
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
