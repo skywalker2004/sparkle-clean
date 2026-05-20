@@ -129,7 +129,7 @@ export default function LoginPage() {
               className="w-full h-11 font-semibold border-white/30 text-white hover:bg-white/10"
               onClick={() => window.location.href = "/book"}
             >
-              Book a Cleaning Service
+              🧹 Book a Cleaning Service
             </Button>
           </form>
         </div>
