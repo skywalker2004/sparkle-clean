@@ -108,7 +108,7 @@ export async function recordCleaning(clientId: string, date: Date, notes: string
 }
 
 export const bookingsApi = {
-  async create(data: Omit<Booking, "id" | "status" | "bookingRef" | "createdAt" | "updatedAt">): Promise<Booking> {
+  async create(data: Omit<Booking, "id" | "status" | "bookingRef" | "createdAt">): Promise<Booking> {
     const res = await fetch(`${BASE}/bookings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,7 +131,7 @@ export const bookingsApi = {
     return { ...b, id: b._id };
   },
   async updateStatus(id: string, status: string): Promise<Booking> {
-    const res = await fetch(`${BASE}/bookings/${id}`, {
+    const res = await fetch(`${BASE}/bookings/${id}/status`, {
       method: "PUT",
       headers: h(),
       body: JSON.stringify({ status }),
