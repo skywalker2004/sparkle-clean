@@ -72,17 +72,22 @@ export interface MonthlyRevenue {
 
 export interface Booking {
   id: string;
+  bookingRef: string;
   fullName: string;
   phone: string;
   email?: string;
   address: string;
-  serviceType: ServiceType;
+  serviceType: string;
+  servicePrice: number;
+  quantity: number;
+  totalPrice: number;
   preferredDate: string;
   preferredTime: PreferredTime;
+  frequency: 'One-time' | 'Weekly' | 'Biweekly' | 'Monthly';
+  propertyType: 'Apartment' | 'House' | 'Office' | 'Shop' | 'Other';
+  propertySize: 'Studio/1BR' | '2-3 Bedroom' | '4-5 Bedroom' | 'Large 6BR+' | 'Commercial Small' | 'Commercial Large';
   notes?: string;
   status: BookingStatus;
-  bookingRef: string;
   createdAt: string;
-  updatedAt: string;
 }
 
