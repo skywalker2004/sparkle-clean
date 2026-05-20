@@ -17,6 +17,6 @@ router.get('/', admin, getBookings);
 router.get('/:id', admin, getBooking);
 
 // UPDATE booking status - admin only
-router.put('/:id', admin, updateBookingStatus);
+router.put('/:id/status', admin, updateBookingStatus);
 
 export default router;
