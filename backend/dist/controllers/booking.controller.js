@@ -6,32 +6,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBookingStatus = exports.getBooking = exports.getBookings = exports.createBooking = void 0;
 const Booking_model_1 = __importDefault(require("../models/Booking.model"));
 const generateBookingRef = () => {
-    const timestamp = Date.now().toString(36).toUpperCase();
-    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
-    return `SC-BOOK-${timestamp}${random}`;
+    const rand = Math.random().toString().substring(2, 6);
+    return `SC-BOOK-${rand}`;
 };
 const createBooking = async (req, res) => {
     try {
-        const { fullName, phone, email, address, serviceType, preferredDate, preferredTime, notes } = req.body;
+        const { fullName, phone, email, address, serviceType, servicePrice, quantity = 1, preferredDate, preferredTime, frequency = 'One-time', propertyType, propertySize, notes } = req.body;
+        // Validate required fields
+        if (!fullName || !phone || !address || !serviceType || !servicePrice || !preferredDate || !preferredTime || !propertyType || !propertySize) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
         // Generate booking reference
         const bookingRef = generateBookingRef();
+        // Calculate total price
+        const totalPrice = servicePrice * quantity;
         const booking = new Booking_model_1.default({
+            bookingRef,
             fullName,
             phone,
             email,
             address,
             serviceType,
-            preferredDate: new Date(preferredDate),
+            servicePrice,
+            quantity,
+            totalPrice,
+            preferredDate,
             preferredTime,
+            frequency,
+            propertyType,
+            propertySize,
             notes,
-            bookingRef,
             status: 'pending',
         });
         await booking.save();
         res.status(201).json(booking);
     }
     catch (error) {
-        res.status(400).json({ message: 'Failed to create booking', error });
+        res.status(400).json({ message: 'Failed to create booking', error: error.message });
     }
 };
 exports.createBooking = createBooking;
@@ -46,7 +57,7 @@ const getBookings = async (req, res) => {
         res.json(bookings);
     }
     catch (error) {
-        res.status(500).json({ message: 'Failed to fetch bookings', error });
+        res.status(500).json({ message: 'Failed to fetch bookings', error: error.message });
     }
 };
 exports.getBookings = getBookings;
@@ -59,13 +70,16 @@ const getBooking = async (req, res) => {
         res.json(booking);
     }
     catch (error) {
-        res.status(500).json({ message: 'Failed to fetch booking', error });
+        res.status(500).json({ message: 'Failed to fetch booking', error: error.message });
     }
 };
 exports.getBooking = getBooking;
 const updateBookingStatus = async (req, res) => {
     try {
         const { status } = req.body;
+        if (!status || !['pending', 'confirmed', 'cancelled'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
         const booking = await Booking_model_1.default.findByIdAndUpdate(req.params.id, { status }, { new: true });
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' });
@@ -73,7 +87,7 @@ const updateBookingStatus = async (req, res) => {
         res.json(booking);
     }
     catch (error) {
-        res.status(400).json({ message: 'Failed to update booking', error });
+        res.status(400).json({ message: 'Failed to update booking', error: error.message });
     }
 };
 exports.updateBookingStatus = updateBookingStatus;
