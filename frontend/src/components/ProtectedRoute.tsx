@@ -1,9 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { UserRole } from "@/types";
 
-export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+interface ProtectedRouteProps {
+  requiredRole?: UserRole;
+}
+
+export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -17,11 +22,16 @@ export function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
 
+  // Check if user has required role (admin and staff both have access, but only admin for admin pages)
+  if (requiredRole && requiredRole === "admin" && user?.role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+
   return <Outlet />;
 }
 
 export function PublicBookingRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -31,8 +41,8 @@ export function PublicBookingRoute() {
     );
   }
 
-  // If user is authenticated (admin), redirect to dashboard
-  if (isAuthenticated) {
+  // If user is authenticated as admin, redirect to dashboard
+  if (isAuthenticated && user?.role === "admin") {
     return <Navigate to="/dashboard" replace />;
   }
 
