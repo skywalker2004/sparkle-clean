@@ -36,14 +36,14 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             
-            {/* Public booking routes - redirects to dashboard if already logged in */}
+            {/* Public booking routes - only non-authenticated users */}
             <Route element={<PublicBookingRoute />}>
               <Route path="/book" element={<BookingPage />} />
               <Route path="/book/confirm" element={<BookingConfirmPage />} />
             </Route>
 
-            {/* Protected admin routes - redirects to login if not authenticated */}
-            <Route element={<ProtectedRoute />}>
+            {/* Protected admin routes - only admins can access */}
+            <Route element={<ProtectedRoute requiredRole="admin" />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/clients" element={<ClientsPage />} />
