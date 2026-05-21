@@ -35,19 +35,34 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const BookingSchema = new mongoose_1.Schema({
+    bookingRef: { type: String, required: true, unique: true, index: true },
     fullName: { type: String, required: true },
     phone: { type: String, required: true },
     email: { type: String },
     address: { type: String, required: true },
-    serviceType: {
-        type: String,
-        enum: ['Standard', 'Deep Clean', 'Move-In/Out', 'Other'],
-        required: true
-    },
-    preferredDate: { type: Date, required: true },
+    serviceType: { type: String, required: true },
+    servicePrice: { type: Number, required: true, min: 0 },
+    quantity: { type: Number, default: 1, min: 1 },
+    totalPrice: { type: Number, required: true, min: 0 },
+    preferredDate: { type: String, required: true },
     preferredTime: {
         type: String,
         enum: ['Morning 8am-12pm', 'Afternoon 12pm-5pm', 'Evening 5pm-8pm'],
+        required: true
+    },
+    frequency: {
+        type: String,
+        enum: ['One-time', 'Weekly', 'Biweekly', 'Monthly'],
+        default: 'One-time'
+    },
+    propertyType: {
+        type: String,
+        enum: ['Apartment', 'House', 'Office', 'Shop', 'Other'],
+        required: true
+    },
+    propertySize: {
+        type: String,
+        enum: ['Studio/1BR', '2-3 Bedroom', '4-5 Bedroom', 'Large 6BR+', 'Commercial Small', 'Commercial Large'],
         required: true
     },
     notes: { type: String },
@@ -56,7 +71,8 @@ const BookingSchema = new mongoose_1.Schema({
         enum: ['pending', 'confirmed', 'cancelled'],
         default: 'pending'
     },
-    bookingRef: { type: String, required: true, unique: true, index: true },
-}, { timestamps: true });
+    createdAt: { type: Date, default: Date.now }
+}, { timestamps: false });
+BookingSchema.index({ phone: 'text', address: 'text', fullName: 'text' });
 exports.default = mongoose_1.default.model('Booking', BookingSchema);
 //# sourceMappingURL=Booking.model.js.map
