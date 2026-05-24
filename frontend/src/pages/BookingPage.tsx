@@ -264,14 +264,14 @@ const SERVICE_DETAILS = [
         name: "Ceiling and Wall Wash",
         desc: "Full cleaning",
         details: "Spider web removal, stain treatment, and wall restoration",
-        image: art("Ceiling & Wall Wash", "Webs, stains, restoration", "🧽", ["#eab308", "#f59e0b"]),
+        image: art("Ceiling and Wall Wash", "Webs, stains, restoration", "🧽", ["#eab308", "#f59e0b"]),
         price: 3000,
       },
       {
         name: "Tile and Grout Deep Clean",
         desc: "Complete tile cleaning",
         details: "Professional grout restoration and tile polishing with anti-bacterial treatment",
-        image: art("Tile & Grout Deep Clean", "Restore grout and shine", "🧼", ["#fbbf24", "#d97706"]),
+        image: art("Tile and Grout Deep Clean", "Restore grout and shine", "🧼", ["#fbbf24", "#d97706"]),
         price: 2500,
       },
       {
