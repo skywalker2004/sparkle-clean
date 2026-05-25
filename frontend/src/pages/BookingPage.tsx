@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Phone, CheckCircle2, Star, Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { bookingsApi } from "@/lib/api";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ServiceArtwork = {
   title: string;
@@ -52,6 +53,40 @@ const createServiceImage = ({ title, subtitle, emoji, colors }: ServiceArtwork) 
 
 const art = (title: string, subtitle: string, emoji: string, colors: [string, string]) =>
   createServiceImage({ title, subtitle, emoji, colors });
+
+const PROPERTY_TYPES = [
+  "Apartment",
+  "Maisonette",
+  "Bungalow",
+  "Villa",
+  "Office",
+  "Townhouse",
+  "Studio",
+  "Other",
+] as const;
+
+const PROPERTY_SIZES = [
+  "Studio / Bedsitter",
+  "1 Bedroom",
+  "2 Bedrooms",
+  "3 Bedrooms",
+  "4 Bedrooms",
+  "5+ Bedrooms",
+  "Large Commercial",
+] as const;
+
+const PREFERRED_TIMES = [
+  "Morning 8am–12pm",
+  "Afternoon 12pm–4pm",
+  "Evening 4pm–8pm",
+] as const;
+
+const BOOKING_FREQUENCIES = [
+  "One-time Booking",
+  "Weekly",
+  "Bi-weekly",
+  "Monthly",
+] as const;
 
 const SERVICE_DETAILS = [
   {
@@ -325,18 +360,23 @@ const SERVICE_DETAILS = [
       },
     ],
   },
-];
+] as const;
 
 const bookingSchema = z.object({
-  fullName: z.string().min(2, "Name required"),
-  phone: z.string().regex(/^(\+254|0)[0-9]{9}$/, "Valid phone required (0768 or +254768)"),
+  fullName: z.string().trim().min(1, "Please enter your full name"),
+  phone: z
+    .string()
+    .trim()
+    .min(1, "Please enter your phone number")
+    .transform((value) => value.replace(/\s+/g, ""))
+    .pipe(z.string().regex(/^(?:\+254|0)(?:7|1)\d{8}$/, "Please enter your phone number")),
   email: z.string().email().optional().or(z.literal("")),
-  address: z.string().min(3, "Address required"),
-  propertyType: z.enum(["Apartment", "House", "Office", "Shop", "Other"]),
-  propertySize: z.enum(["Studio/1BR", "2-3 Bedroom", "4-5 Bedroom", "Large 6BR+", "Commercial Small", "Commercial Large"]),
-  preferredDate: z.string().min(1, "Date required"),
-  preferredTime: z.enum(["Morning 8am-12pm", "Afternoon 12pm-5pm", "Evening 5pm-8pm"]),
-  frequency: z.enum(["One-time", "Weekly", "Biweekly", "Monthly"]),
+  address: z.string().trim().min(1, "Please enter your Nairobi address"),
+  propertyType: z.enum(PROPERTY_TYPES, { message: "Please select your property type" }),
+  propertySize: z.enum(PROPERTY_SIZES, { message: "Please select your property size" }),
+  preferredDate: z.string().min(1, "Please select your preferred date"),
+  preferredTime: z.enum(PREFERRED_TIMES, { message: "Please select your preferred time" }),
+  frequency: z.enum(BOOKING_FREQUENCIES, { message: "Please select booking frequency" }),
   notes: z.string().optional(),
 });
 
@@ -351,6 +391,17 @@ interface ServiceItem {
   perUnit?: boolean;
 }
 
+const requiredFields = [
+  "fullName",
+  "phone",
+  "address",
+  "propertyType",
+  "propertySize",
+  "preferredDate",
+  "preferredTime",
+  "frequency",
+] as const;
+
 export default function BookingPage() {
   const navigate = useNavigate();
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
@@ -359,16 +410,34 @@ export default function BookingPage() {
   const [showForm, setShowForm] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<BookingForm>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    setFocus,
+    watch,
+    formState: { errors },
+  } = useForm<BookingForm>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
-      frequency: "One-time",
-      preferredTime: "Morning 8am-12pm",
-    }
+      fullName: "",
+      phone: "",
+      email: "",
+      address: "",
+      propertyType: "" as BookingForm["propertyType"],
+      propertySize: "" as BookingForm["propertySize"],
+      preferredDate: "",
+      preferredTime: "" as BookingForm["preferredTime"],
+      frequency: "" as BookingForm["frequency"],
+      notes: "",
+    },
   });
 
   const totalPrice = selectedService ? selectedService.price * quantity : 0;
+  const watchedValues = watch(requiredFields);
+  const isBookingReady = watchedValues.every((value) => typeof value === "string" ? value.trim().length > 0 : Boolean(value));
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, cardId: string) => {
     if (hoveredCard !== cardId) return;
@@ -387,6 +456,15 @@ export default function BookingPage() {
   const handleMouseLeave = () => {
     setRotation({ x: 0, y: 0 });
     setHoveredCard(null);
+  };
+
+  const onInvalid = (fieldErrors: typeof errors) => {
+    for (const field of requiredFields) {
+      if (fieldErrors[field]) {
+        setTimeout(() => setFocus(field), 0);
+        break;
+      }
+    }
   };
 
   const onSubmit = async (data: BookingForm) => {
@@ -423,13 +501,13 @@ export default function BookingPage() {
         service: selectedService.name,
         date: data.preferredDate,
         time: data.preferredTime,
-        totalPrice
+        totalPrice,
       }));
 
       toast.success("Booking submitted! Redirecting...");
       setTimeout(() => navigate("/book/confirm"), 500);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create booking");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to create booking");
     } finally {
       setLoading(false);
     }
@@ -438,9 +516,9 @@ export default function BookingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-900 to-slate-950 relative overflow-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
-        <div className="absolute bottom-0 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
+        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-2000" />
+        <div className="absolute bottom-0 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000" />
       </div>
 
       <div className="relative z-10">
@@ -478,7 +556,7 @@ export default function BookingPage() {
                       <span className="text-4xl">{category.icon}</span>
                       <div>
                         <h2 className="text-3xl font-bold text-white mb-1">{category.category}</h2>
-                        <div className={`h-1 w-20 bg-gradient-to-r ${category.color} rounded-full`}></div>
+                        <div className={`h-1 w-20 bg-gradient-to-r ${category.color} rounded-full`} />
                       </div>
                     </div>
 
@@ -498,7 +576,7 @@ export default function BookingPage() {
                             transform: hoveredCard === `${category.category}-${idx}`
                               ? `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) translateZ(20px)`
                               : "perspective(1000px) rotateX(0) rotateY(0) translateZ(0)",
-                            transition: hoveredCard !== `${category.category}-${idx}` ? "transform 0.3s ease-out" : "none"
+                            transition: hoveredCard !== `${category.category}-${idx}` ? "transform 0.3s ease-out" : "none",
                           }}
                           className="group/card relative cursor-pointer"
                         >
@@ -509,7 +587,7 @@ export default function BookingPage() {
                                 alt={service.name}
                                 className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-300"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
                               <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
                                 <Star className="w-3 h-3 text-yellow-200 fill-yellow-200" />
                                 <span className="text-xs font-semibold text-yellow-200">5.0</span>
@@ -545,171 +623,240 @@ export default function BookingPage() {
               </div>
             </>
           ) : (
-            <>
-              <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-8">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowForm(false)}
-                    className="text-blue-300 hover:text-blue-200 mb-4"
-                  >
-                    ← Back to Services
-                  </Button>
-                  <h2 className="text-4xl font-bold text-white mb-2">Complete Your Booking</h2>
-                  {selectedService && (
-                    <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-4 py-2 backdrop-blur-md mt-4">
-                      <CheckCircle2 className="w-4 h-4 text-green-400" />
-                      <span className="text-blue-200 text-sm">
-                        {selectedService.name} • KSh {totalPrice.toLocaleString()}
-                      </span>
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-8">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowForm(false)}
+                  className="text-blue-300 hover:text-blue-200 mb-4"
+                >
+                  ← Back to Services
+                </Button>
+                <h2 className="text-4xl font-bold text-white mb-2">Complete Your Booking</h2>
+                {selectedService && (
+                  <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-4 py-2 backdrop-blur-md mt-4">
+                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    <span className="text-blue-200 text-sm">
+                      {selectedService.name} • KSh {totalPrice.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <Card className="bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 border border-white/10 backdrop-blur-md p-8">
+                <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
+                  <div>
+                    <Label className="text-white/90 font-semibold">Full Name *</Label>
+                    <Input
+                      placeholder="Alexandra Johnson"
+                      {...register("fullName")}
+                      className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    />
+                    {errors.fullName && <p className="text-red-400 text-sm mt-1">{errors.fullName.message}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label className="text-white/90 font-semibold">Phone Number *</Label>
+                      <Input
+                        placeholder="+254 7XX XXX XXX"
+                        inputMode="tel"
+                        {...register("phone")}
+                        className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                      />
+                      {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
+                    </div>
+                    <div>
+                      <Label className="text-white/90 font-semibold">Email (Optional)</Label>
+                      <Input
+                        type="email"
+                        placeholder="alexandra@example.com"
+                        {...register("email")}
+                        className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-white/90 font-semibold">Address *</Label>
+                    <Input
+                      placeholder="e.g., Westlands, Nairobi"
+                      {...register("address")}
+                      className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    />
+                    {errors.address && <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label className="text-white/90 font-semibold">Property Type *</Label>
+                      <Controller
+                        name="propertyType"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
+                              <SelectValue placeholder="Select property type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-950 border-white/15 text-white">
+                              {PROPERTY_TYPES.map((option) => (
+                                <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.propertyType && <p className="text-red-400 text-sm mt-1">{errors.propertyType.message}</p>}
+                    </div>
+
+                    <div>
+                      <Label className="text-white/90 font-semibold">Property Size *</Label>
+                      <Controller
+                        name="propertySize"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
+                              <SelectValue placeholder="Select property size" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-950 border-white/15 text-white">
+                              {PROPERTY_SIZES.map((option) => (
+                                <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.propertySize && <p className="text-red-400 text-sm mt-1">{errors.propertySize.message}</p>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label className="text-white/90 font-semibold">Preferred Date *</Label>
+                      <Input
+                        type="date"
+                        min={today}
+                        {...register("preferredDate")}
+                        className="mt-2 bg-white/5 border-white/20 text-white"
+                      />
+                      {errors.preferredDate && <p className="text-red-400 text-sm mt-1">{errors.preferredDate.message}</p>}
+                    </div>
+
+                    <div>
+                      <Label className="text-white/90 font-semibold">Preferred Time *</Label>
+                      <Controller
+                        name="preferredTime"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
+                              <SelectValue placeholder="Select preferred time" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-950 border-white/15 text-white">
+                              {PREFERRED_TIMES.map((option) => (
+                                <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.preferredTime && <p className="text-red-400 text-sm mt-1">{errors.preferredTime.message}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-white/90 font-semibold">Booking Frequency *</Label>
+                    <Controller
+                      name="frequency"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
+                            <SelectValue placeholder="Select booking frequency" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-950 border-white/15 text-white">
+                            {BOOKING_FREQUENCIES.map((option) => (
+                              <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.frequency && <p className="text-red-400 text-sm mt-1">{errors.frequency.message}</p>}
+                  </div>
+
+                  <div>
+                    <Label className="text-white/90 font-semibold">Special Instructions (Optional)</Label>
+                    <Textarea
+                      placeholder="Tell us about any special requirements..."
+                      {...register("notes")}
+                      className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    />
+                  </div>
+
+                  {selectedService?.perUnit && (
+                    <div>
+                      <Label className="text-white/90 font-semibold">Quantity *</Label>
+                      <div className="flex items-center gap-4 mt-2">
+                        <Button type="button" variant="outline" size="sm" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="border-white/20 text-white">
+                          −
+                        </Button>
+                        <span className="text-2xl font-bold text-blue-300 w-8 text-center">{quantity}</span>
+                        <Button type="button" variant="outline" size="sm" onClick={() => setQuantity(Math.min(20, quantity + 1))} className="border-white/20 text-white">
+                          +
+                        </Button>
+                      </div>
                     </div>
                   )}
-                </div>
 
-                <Card className="bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 border border-white/10 backdrop-blur-md p-8">
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div>
-                      <Label className="text-white/90 font-semibold">Full Name *</Label>
-                      <Input
-                        placeholder="Alexandra Johnson"
-                        {...register("fullName")}
-                        className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
-                      />
-                      {errors.fullName && <p className="text-red-400 text-sm mt-1">{errors.fullName.message}</p>}
+                  <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-lg p-6 backdrop-blur-md">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-white/70">Service</span>
+                      <span className="text-white font-medium">KSh {selectedService?.price.toLocaleString()}</span>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label className="text-white/90 font-semibold">Phone Number *</Label>
-                        <Input
-                          placeholder="+254768362805"
-                          {...register("phone")}
-                          className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
-                        />
-                        {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
-                      </div>
-                      <div>
-                        <Label className="text-white/90 font-semibold">Email (Optional)</Label>
-                        <Input
-                          type="email"
-                          placeholder="alexandra@example.com"
-                          {...register("email")}
-                          className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-white/90 font-semibold">Address *</Label>
-                      <Input
-                        placeholder="e.g., Westlands, Nairobi"
-                        {...register("address")}
-                        className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
-                      />
-                      {errors.address && <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label className="text-white/90 font-semibold">Property Type *</Label>
-                        <select {...register("propertyType")} className="w-full mt-2 px-3 py-2 bg-white/5 border border-white/20 text-white rounded-md">
-                          <option value="Apartment">Apartment</option>
-                          <option value="House">House</option>
-                          <option value="Office">Office</option>
-                          <option value="Shop">Shop</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <Label className="text-white/90 font-semibold">Property Size *</Label>
-                        <select {...register("propertySize")} className="w-full mt-2 px-3 py-2 bg-white/5 border border-white/20 text-white rounded-md">
-                          <option value="Studio/1BR">Studio/1BR</option>
-                          <option value="2-3 Bedroom">2-3 Bedroom</option>
-                          <option value="4-5 Bedroom">4-5 Bedroom</option>
-                          <option value="Large 6BR+">Large 6BR+</option>
-                          <option value="Commercial Small">Commercial Small</option>
-                          <option value="Commercial Large">Commercial Large</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label className="text-white/90 font-semibold">Preferred Date *</Label>
-                        <Input type="date" {...register("preferredDate")} className="mt-2 bg-white/5 border-white/20 text-white" />
-                      </div>
-                      <div>
-                        <Label className="text-white/90 font-semibold">Preferred Time *</Label>
-                        <select {...register("preferredTime")} className="w-full mt-2 px-3 py-2 bg-white/5 border border-white/20 text-white rounded-md">
-                          <option value="Morning 8am-12pm">Morning 8am-12pm</option>
-                          <option value="Afternoon 12pm-5pm">Afternoon 12pm-5pm</option>
-                          <option value="Evening 5pm-8pm">Evening 5pm-8pm</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-white/90 font-semibold">Booking Frequency *</Label>
-                      <select {...register("frequency")} className="w-full mt-2 px-3 py-2 bg-white/5 border border-white/20 text-white rounded-md">
-                        <option value="One-time">One-time Booking</option>
-                        <option value="Weekly">Weekly</option>
-                        <option value="Biweekly">Biweekly</option>
-                        <option value="Monthly">Monthly</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <Label className="text-white/90 font-semibold">Special Instructions (Optional)</Label>
-                      <Textarea placeholder="Tell us about any special requirements..." {...register("notes")} className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40" />
-                    </div>
-
-                    {selectedService?.perUnit && (
-                      <div>
-                        <Label className="text-white/90 font-semibold">Quantity *</Label>
-                        <div className="flex items-center gap-4 mt-2">
-                          <Button type="button" variant="outline" size="sm" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="border-white/20 text-white">−</Button>
-                          <span className="text-2xl font-bold text-blue-300 w-8 text-center">{quantity}</span>
-                          <Button type="button" variant="outline" size="sm" onClick={() => setQuantity(Math.min(20, quantity + 1))} className="border-white/20 text-white">+</Button>
-                        </div>
+                    {selectedService?.perUnit && quantity > 1 && (
+                      <div className="flex justify-between items-center mb-2 text-sm text-white/60">
+                        <span>× {quantity}</span>
                       </div>
                     )}
-
-                    <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-lg p-6 backdrop-blur-md">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-white/70">Service</span>
-                        <span className="text-white font-medium">KSh {selectedService?.price.toLocaleString()}</span>
-                      </div>
-                      {selectedService?.perUnit && quantity > 1 && (
-                        <div className="flex justify-between items-center mb-2 text-sm text-white/60">
-                          <span>× {quantity}</span>
-                        </div>
-                      )}
-                      <div className="border-t border-blue-500/20 pt-2 flex justify-between items-center">
-                        <span className="text-white font-semibold">Total Amount</span>
-                        <span className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
-                          KSh {totalPrice.toLocaleString()}
-                        </span>
-                      </div>
+                    <div className="border-t border-blue-500/20 pt-2 flex justify-between items-center">
+                      <span className="text-white font-semibold">Total Amount</span>
+                      <span className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+                        KSh {totalPrice.toLocaleString()}
+                      </span>
                     </div>
+                  </div>
 
-                    <Button type="submit" disabled={loading} className="w-full h-12 font-semibold text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          Confirm Booking
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </Card>
-              </div>
-            </>
+                  <Button
+                    type="submit"
+                    disabled={loading || !isBookingReady}
+                    className="w-full h-12 font-semibold text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Confirm Booking
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Card>
+            </div>
           )}
         </div>
       </div>
