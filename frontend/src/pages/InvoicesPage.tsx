@@ -165,6 +165,13 @@ export default function InvoicesPage() {
     qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
   };
 
+  const handleReverse = async (id: string) => {
+    await invoicesApi.markUnpaid([id]);
+    toast.success("Invoice reversed to unpaid");
+    qc.invalidateQueries({ queryKey: ["invoices"] });
+    qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
+  };
+
   const handleExport = () => {
     exportToCSV(
       filtered.map(i => ({
@@ -310,10 +317,17 @@ export default function InvoicesPage() {
                           className="text-[10px] cursor-pointer hover:opacity-80"
                           onClick={() => handleSinglePay(inv.id)}
                         >
-                          Unpaid — click to mark paid
+                          Unpaid — click to pay
                         </Badge>
                       ) : (
-                        <Badge variant="default" className="text-[10px]">Paid</Badge>
+                        <Badge
+                          variant="default"
+                          className="text-[10px] cursor-pointer hover:bg-yellow-600 hover:text-white transition-colors"
+                          onClick={() => handleReverse(inv.id)}
+                          title="Click to reverse to unpaid"
+                        >
+                          ✓ Paid — click to reverse
+                        </Badge>
                       )}
                     </td>
                     <td className="p-3 text-muted-foreground">

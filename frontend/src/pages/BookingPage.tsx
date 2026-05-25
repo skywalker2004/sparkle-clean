@@ -649,7 +649,7 @@ export default function BookingPage() {
                   <div>
                     <Label className="text-white/90 font-semibold">Full Name *</Label>
                     <Input
-                      placeholder="Alexandra Johnson"
+                      placeholder="Your Name"
                       {...register("fullName")}
                       className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
                     />
@@ -671,7 +671,7 @@ export default function BookingPage() {
                       <Label className="text-white/90 font-semibold">Email (Optional)</Label>
                       <Input
                         type="email"
-                        placeholder="alexandra@example.com"
+                        placeholder="youremail@example.com"
                         {...register("email")}
                         className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
                       />

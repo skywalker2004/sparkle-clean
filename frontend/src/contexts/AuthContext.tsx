@@ -11,7 +11,11 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({ user: null, isAuthenticated: false, isLoading: true });
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    isLoading: true,
+  });
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -19,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const user = await authApi.getSession();
         setState({ user, isAuthenticated: !!user, isLoading: false });
-      } catch (error) {
+      } catch {
         setState({ user: null, isAuthenticated: false, isLoading: false });
       }
     };
@@ -29,14 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (creds: LoginCredentials) => {
     const user = await authApi.login(creds);
     setState({ user, isAuthenticated: true, isLoading: false });
-    // Invalidate all queries after successful login to refetch fresh data
     queryClient.invalidateQueries();
   }, [queryClient]);
 
   const logout = useCallback(async () => {
     await authApi.logout();
     setState({ user: null, isAuthenticated: false, isLoading: false });
-    // Clear all cache on logout
     queryClient.clear();
   }, [queryClient]);
 
