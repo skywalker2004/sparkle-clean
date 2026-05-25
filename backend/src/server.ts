@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
-import connectDB from "./config/db.js";
+import connectDB from "./config/db";
 import authRoutes from "./routes/auth.routes";
 import clientRoutes from "./routes/client.routes";
 import invoiceRoutes from "./routes/invoice.routes";
