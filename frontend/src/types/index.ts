@@ -4,7 +4,7 @@ export type Frequency = "weekly" | "biweekly" | "monthly";
 export type ClientStatus = "active" | "inactive";
 export type InvoiceStatus = "unpaid" | "paid";
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
-export type PreferredTime = "Morning 8am-12pm" | "Afternoon 12pm-5pm" | "Evening 5pm-8pm";
+export type PreferredTime = "Morning 8am–12pm" | "Afternoon 12pm–4pm" | "Evening 4pm–8pm";
 
 export interface User {
   id: string;
@@ -83,11 +83,10 @@ export interface Booking {
   totalPrice: number;
   preferredDate: string;
   preferredTime: PreferredTime;
-  frequency: 'One-time' | 'Weekly' | 'Biweekly' | 'Monthly';
-  propertyType: 'Apartment' | 'House' | 'Office' | 'Shop' | 'Other';
-  propertySize: 'Studio/1BR' | '2-3 Bedroom' | '4-5 Bedroom' | 'Large 6BR+' | 'Commercial Small' | 'Commercial Large';
+  frequency: "One-time Booking" | "Weekly" | "Bi-weekly" | "Monthly";
+  propertyType: "Apartment" | "Maisonette" | "Bungalow" | "Villa" | "Office" | "Townhouse" | "Studio" | "Other";
+  propertySize: "Studio / Bedsitter" | "1 Bedroom" | "2 Bedrooms" | "3 Bedrooms" | "4 Bedrooms" | "5+ Bedrooms" | "Large Commercial";
   notes?: string;
   status: BookingStatus;
   createdAt: string;
 }
-
