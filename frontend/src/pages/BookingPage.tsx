@@ -368,8 +368,9 @@ const bookingSchema = z.object({
     .string()
     .trim()
     .min(1, "Please enter your phone number")
+    .min(10, "Please enter your phone number")
     .transform((value) => value.replace(/\s+/g, ""))
-    .pipe(z.string().regex(/^(?:\+254|0)(?:7|1)\d{8}$/, "Please enter your phone number")),
+    .pipe(z.string().regex(/^(\+?254|0)(?:7|1)\d{8}$/, "Please enter your phone number")),
   email: z.string().email().optional().or(z.literal("")),
   address: z.string().trim().min(1, "Please enter your Nairobi address"),
   propertyType: z.enum(PROPERTY_TYPES, { message: "Please select your property type" }),
@@ -699,9 +700,9 @@ export default function BookingPage() {
                             <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
                               <SelectValue placeholder="Select property type" />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-950 border-white/15 text-white">
+                            <SelectContent>
                               {PROPERTY_TYPES.map((option) => (
-                                <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                <SelectItem key={option} value={option}>
                                   {option}
                                 </SelectItem>
                               ))}
@@ -722,9 +723,9 @@ export default function BookingPage() {
                             <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
                               <SelectValue placeholder="Select property size" />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-950 border-white/15 text-white">
+                            <SelectContent>
                               {PROPERTY_SIZES.map((option) => (
-                                <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                <SelectItem key={option} value={option}>
                                   {option}
                                 </SelectItem>
                               ))}
@@ -758,9 +759,9 @@ export default function BookingPage() {
                             <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
                               <SelectValue placeholder="Select preferred time" />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-950 border-white/15 text-white">
+                            <SelectContent>
                               {PREFERRED_TIMES.map((option) => (
-                                <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                                <SelectItem key={option} value={option}>
                                   {option}
                                 </SelectItem>
                               ))}
@@ -782,9 +783,9 @@ export default function BookingPage() {
                           <SelectTrigger className="mt-2 bg-white/5 border-white/20 text-white">
                             <SelectValue placeholder="Select booking frequency" />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-950 border-white/15 text-white">
+                          <SelectContent>
                             {BOOKING_FREQUENCIES.map((option) => (
-                              <SelectItem key={option} value={option} className="text-white data-[highlighted]:bg-white/10 data-[highlighted]:text-white">
+                              <SelectItem key={option} value={option}>
                                 {option}
                               </SelectItem>
                             ))}

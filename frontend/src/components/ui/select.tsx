@@ -29,21 +29,22 @@ SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, position = "popper", ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
+      position={position}
       className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-md border border-white/15 bg-slate-950 text-white shadow-xl",
+        "z-50 min-w-[8rem] overflow-hidden rounded-md border border-white/20 bg-slate-900 text-white shadow-2xl",
         className
       )}
       {...props}
     >
-      <SelectPrimitive.ScrollUpButton className="flex items-center justify-center bg-slate-900 py-1 text-white/70" />
-      <SelectPrimitive.Viewport className="p-1">
+      <SelectPrimitive.ScrollUpButton className="flex items-center justify-center bg-slate-800 py-1 text-white/70" />
+      <SelectPrimitive.Viewport className="p-1 bg-slate-900">
         {children}
       </SelectPrimitive.Viewport>
-      <SelectPrimitive.ScrollDownButton className="flex items-center justify-center bg-slate-900 py-1 text-white/70" />
+      <SelectPrimitive.ScrollDownButton className="flex items-center justify-center bg-slate-800 py-1 text-white/70" />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
@@ -56,14 +57,14 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-white",
+      "relative flex w-full cursor-pointer select-none items-center rounded-sm py-3 pl-8 pr-3 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-blue-500/30 data-[highlighted]:text-white bg-slate-900 hover:bg-blue-500/20 text-white/90",
       className
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <Check className="h-4 w-4 text-blue-400" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
