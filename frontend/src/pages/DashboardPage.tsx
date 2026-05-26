@@ -97,7 +97,7 @@ export default function DashboardPage() {
         <div className="relative p-6 sm:p-8 text-primary-foreground">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5" />
-            <span className="text-sm font-medium opacity-90">Karibu tena</span>
+            <span className="text-sm font-medium opacity-90">Welcome back</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold">SparkleClean Dashboard</h1>
           <p className="text-sm opacity-80 mt-1 max-w-md">
