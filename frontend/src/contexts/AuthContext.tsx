@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { User, AuthState, LoginCredentials } from "@/types";
 import { authApi } from "@/lib/api";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthContextType extends AuthState {
   login: (creds: LoginCredentials) => Promise<void>;
@@ -16,31 +15,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: false,
     isLoading: true,
   });
-  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const user = await authApi.getSession();
+    authApi.getSession()
+      .then(user => {
         setState({ user, isAuthenticated: !!user, isLoading: false });
-      } catch {
+      })
+      .catch(() => {
         setState({ user: null, isAuthenticated: false, isLoading: false });
-      }
-    };
-    initAuth();
+      });
   }, []);
 
   const login = useCallback(async (creds: LoginCredentials) => {
     const user = await authApi.login(creds);
     setState({ user, isAuthenticated: true, isLoading: false });
-    queryClient.invalidateQueries();
-  }, [queryClient]);
+  }, []);
 
   const logout = useCallback(async () => {
     await authApi.logout();
     setState({ user: null, isAuthenticated: false, isLoading: false });
-    queryClient.clear();
-  }, [queryClient]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ ...state, login, logout }}>

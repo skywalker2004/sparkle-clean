@@ -1,48 +1,51 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.model';
-import { AuthRequest } from '../types';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+
+export interface AuthRequest extends Request {
+  userId?: string;
+  userRole?: string;
+}
 
 interface JwtPayload {
   id: string;
   role: string;
 }
 
-export const protect = async (req: Request, res: Response, next: NextFunction) => {
-  let token: string | undefined;
+export const protect = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers.authorization;
 
-  // Check Authorization header first (Bearer token)
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-    token = req.headers.authorization.slice(7); // Remove 'Bearer ' prefix
-  } else if (req.cookies?.jwt) {
-    token = req.cookies.jwt;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Not authorized — no token provided" });
   }
 
-  if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
-  }
+  const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
-    }
-    (req as AuthRequest).user = {
-      _id: user._id,
-      role: user.role as 'admin' | 'staff',
-    };
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
+
+    req.userId = decoded.id;
+    req.userRole = decoded.role;
     next();
-  } catch (error) {
-    res.status(401).json({ message: 'Not authorized, token failed' });
+  } catch {
+    return res.status(401).json({ message: "Not authorized — token invalid or expired" });
   }
 };
 
-export const admin = (req: Request, res: Response, next: NextFunction) => {
-  const user = (req as AuthRequest).user;
-  if (user && user.role === 'admin') {
+export const adminOnly = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.userRole === "admin") {
     next();
   } else {
-    res.status(403).json({ message: 'Not authorized as admin' });
+    res.status(403).json({ message: "Not authorized — admin access required" });
   }
 };
