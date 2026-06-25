@@ -6,5 +6,6 @@ const auth_middleware_1 = require("../middleware/auth.middleware");
 const router = (0, express_1.Router)();
 router.post("/login", auth_controller_1.login);
 router.get("/me", auth_middleware_1.protect, auth_controller_1.getMe);
+router.post("/logout", auth_controller_1.logout);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

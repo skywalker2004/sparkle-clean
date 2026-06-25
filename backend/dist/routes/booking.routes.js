@@ -12,10 +12,10 @@ router.post('/', booking_controller_1.createBooking);
 // All other routes require authentication
 router.use(auth_middleware_1.protect);
 // GET all bookings - admin only
-router.get('/', auth_middleware_1.admin, booking_controller_1.getBookings);
+router.get('/', auth_middleware_1.adminOnly, booking_controller_1.getBookings);
 // GET single booking - admin only
-router.get('/:id', auth_middleware_1.admin, booking_controller_1.getBooking);
+router.get('/:id', auth_middleware_1.adminOnly, booking_controller_1.getBooking);
 // UPDATE booking status - admin only
-router.put('/:id/status', auth_middleware_1.admin, booking_controller_1.updateBookingStatus);
+router.put('/:id/status', auth_middleware_1.adminOnly, booking_controller_1.updateBookingStatus);
 exports.default = router;
 //# sourceMappingURL=booking.routes.js.map
