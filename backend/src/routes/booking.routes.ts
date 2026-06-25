@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect, admin } from '../middleware/auth.middleware';
+import { protect, adminOnly } from '../middleware/auth.middleware';
 import { createBooking, getBookings, getBooking, updateBookingStatus } from '../controllers/booking.controller';
 
 const router = express.Router();
@@ -11,12 +11,12 @@ router.post('/', createBooking);
 router.use(protect);
 
 // GET all bookings - admin only
-router.get('/', admin, getBookings);
+router.get('/', adminOnly, getBookings);
 
 // GET single booking - admin only
-router.get('/:id', admin, getBooking);
+router.get('/:id', adminOnly, getBooking);
 
 // UPDATE booking status - admin only
-router.put('/:id/status', admin, updateBookingStatus);
+router.put('/:id/status', adminOnly, updateBookingStatus);
 
 export default router;
