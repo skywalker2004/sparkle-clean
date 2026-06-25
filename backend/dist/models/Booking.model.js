@@ -47,22 +47,22 @@ const BookingSchema = new mongoose_1.Schema({
     preferredDate: { type: String, required: true },
     preferredTime: {
         type: String,
-        enum: ['Morning 8am-12pm', 'Afternoon 12pm-5pm', 'Evening 5pm-8pm'],
+        enum: ['Morning 8am–12pm', 'Afternoon 12pm–4pm', 'Evening 4pm–8pm'],
         required: true
     },
     frequency: {
         type: String,
-        enum: ['One-time', 'Weekly', 'Biweekly', 'Monthly'],
-        default: 'One-time'
+        enum: ['One-time Booking', 'Weekly', 'Bi-weekly', 'Monthly'],
+        default: 'One-time Booking'
     },
     propertyType: {
         type: String,
-        enum: ['Apartment', 'House', 'Office', 'Shop', 'Other'],
+        enum: ['Apartment', 'Maisonette', 'Bungalow', 'Villa', 'Office', 'Townhouse', 'Studio', 'Other'],
         required: true
     },
     propertySize: {
         type: String,
-        enum: ['Studio/1BR', '2-3 Bedroom', '4-5 Bedroom', 'Large 6BR+', 'Commercial Small', 'Commercial Large'],
+        enum: ['Studio / Bedsitter', '1 Bedroom', '2 Bedrooms', '3 Bedrooms', '4 Bedrooms', '5+ Bedrooms', 'Large Commercial'],
         required: true
     },
     notes: { type: String },
