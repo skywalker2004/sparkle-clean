@@ -3,46 +3,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.admin = exports.protect = void 0;
+exports.adminOnly = exports.protect = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_model_1 = __importDefault(require("../models/User.model"));
-const protect = async (req, res, next) => {
-    let token;
-    // Check Authorization header first (Bearer token)
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-        token = req.headers.authorization.slice(7); // Remove 'Bearer ' prefix
+const protect = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Not authorized — no token provided" });
     }
-    else if (req.cookies?.jwt) {
-        token = req.cookies.jwt;
-    }
-    if (!token) {
-        return res.status(401).json({ message: 'Not authorized, no token' });
-    }
+    const token = authHeader.split(" ")[1];
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        const user = await User_model_1.default.findById(decoded.id).select('-password');
-        if (!user) {
-            return res.status(401).json({ message: 'User not found' });
-        }
-        req.user = {
-            _id: user._id,
-            role: user.role,
-        };
+        req.userId = decoded.id;
+        req.userRole = decoded.role;
         next();
     }
-    catch (error) {
-        res.status(401).json({ message: 'Not authorized, token failed' });
+    catch {
+        return res.status(401).json({ message: "Not authorized — token invalid or expired" });
     }
 };
 exports.protect = protect;
-const admin = (req, res, next) => {
-    const user = req.user;
-    if (user && user.role === 'admin') {
+const adminOnly = (req, res, next) => {
+    if (req.userRole === "admin") {
         next();
     }
     else {
-        res.status(403).json({ message: 'Not authorized as admin' });
+        res.status(403).json({ message: "Not authorized — admin access required" });
     }
 };
-exports.admin = admin;
+exports.adminOnly = adminOnly;
 //# sourceMappingURL=auth.middleware.js.map
