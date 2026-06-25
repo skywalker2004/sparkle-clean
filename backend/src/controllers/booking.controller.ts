@@ -19,7 +19,7 @@ export const createBooking = async (req: any, res: Response) => {
       quantity = 1,
       preferredDate, 
       preferredTime,
-      frequency = 'One-time',
+      frequency = 'One-time Booking',
       propertyType,
       propertySize,
       notes 
