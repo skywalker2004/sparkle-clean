@@ -11,7 +11,7 @@ const generateBookingRef = () => {
 };
 const createBooking = async (req, res) => {
     try {
-        const { fullName, phone, email, address, serviceType, servicePrice, quantity = 1, preferredDate, preferredTime, frequency = 'One-time', propertyType, propertySize, notes } = req.body;
+        const { fullName, phone, email, address, serviceType, servicePrice, quantity = 1, preferredDate, preferredTime, frequency = 'One-time Booking', propertyType, propertySize, notes } = req.body;
         // Validate required fields
         if (!fullName || !phone || !address || !serviceType || !servicePrice || !preferredDate || !preferredTime || !propertyType || !propertySize) {
             return res.status(400).json({ message: 'Missing required fields' });
