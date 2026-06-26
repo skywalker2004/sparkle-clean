@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMonthlyRevenue = exports.getDashboardStats = exports.recordCleaning = exports.markUnpaid = exports.markPaid = exports.createInvoice = exports.getInvoices = void 0;
 const Invoice_model_1 = __importDefault(require("../models/Invoice.model"));
 const Client_model_1 = __importDefault(require("../models/Client.model"));
+const Booking_model_1 = __importDefault(require("../models/Booking.model"));
 const date_fns_1 = require("date-fns");
 const getInvoices = async (req, res) => {
     try {
@@ -81,30 +82,33 @@ const markUnpaid = async (req, res) => {
 exports.markUnpaid = markUnpaid;
 const recordCleaning = async (req, res) => {
     try {
+        console.log("recordCleaning req.body:", req.body);
         const { clientId, date, notes } = req.body;
+        console.log("Searching for clientId:", clientId);
         const client = await Client_model_1.default.findById(clientId);
+        console.log("Client found:", client ? { id: client._id, name: client.name } : null);
         if (!client)
             return res.status(404).json({ message: "Client not found" });
-        client.lastCleanedDate = date;
+        client.lastCleanedDate = new Date(date);
         if (notes)
             client.notes = notes;
         await client.save();
-        const count = await Invoice_model_1.default.countDocuments();
-        const invoiceNumber = `SC-${String(count + 1).padStart(4, "0")}`;
+        const invoiceNumber = `SC-${Date.now()}`;
         const invoice = await Invoice_model_1.default.create({
             invoiceNumber,
-            clientId: client.id,
+            client: client._id,
             clientName: client.name,
             amount: client.pricePerVisit,
-            dueDate: (0, date_fns_1.addDays)(new Date(date), 14).toISOString(),
+            dueDate: (0, date_fns_1.addDays)(new Date(date), 14),
             status: "unpaid",
             paidDate: null,
             notes: notes || "",
         });
-        res.status(201).json(invoice);
+        res.status(201).json({ ...invoice.toJSON(), id: invoice._id });
     }
-    catch {
-        res.status(500).json({ message: "Server error" });
+    catch (error) {
+        console.error("recordCleaning error:", error.message, error.stack);
+        res.status(500).json({ message: error.message });
     }
 };
 exports.recordCleaning = recordCleaning;
@@ -134,11 +138,13 @@ const getDashboardStats = async (req, res) => {
                     : (0, date_fns_1.addDays)(last, 30);
             return next >= now && next <= weekEnd;
         }).length;
+        const pendingBookings = await Booking_model_1.default.countDocuments({ status: "pending" });
         res.json({
             totalActiveClients: activeClients.length,
             revenueThisMonth: revenueThisMonth[0]?.total || 0,
             outstandingBalance: outstanding[0]?.total || 0,
             upcomingThisWeek,
+            pendingBookings,
         });
     }
     catch {
