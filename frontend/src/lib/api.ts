@@ -130,6 +130,17 @@ export const bookingsApi = {
     const b = await res.json();
     return { ...b, id: b._id };
   },
+  async confirmBooking(id: string) {
+    const res = await fetch(`${BASE}/bookings/${id}/confirm`, {
+      method: "PUT",
+      headers: h(),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Failed to confirm booking");
+    }
+    return res.json();
+  },
   async updateStatus(id: string, status: string): Promise<Booking> {
     const res = await fetch(`${BASE}/bookings/${id}/status`, {
       method: "PUT",
@@ -138,7 +149,7 @@ export const bookingsApi = {
     });
     if (!res.ok) throw new Error("Failed to update booking");
     const b = await res.json();
-    return { ...b, id: b._id };
+    return { ...b, id: b._id || b.booking?._id };
   },
 };
 

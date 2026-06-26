@@ -211,6 +211,16 @@ export default function SchedulePage() {
                     <p className="text-xs text-amber-600 dark:text-amber-400">
                       {c.address} · First visit not yet recorded
                     </p>
+                    {c.startDate && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        📅 Start date: {format(new Date(c.startDate), "EEE, MMM d, yyyy")}
+                      </p>
+                    )}
+                    {c.notes?.includes("Booking ref:") && (
+                      <p className="text-xs text-muted-foreground/70 italic">
+                        {c.notes.match(/Booking ref: [^\s|]+/)?.[0]}
+                      </p>
+                    )}
                   </div>
                   <Button
                     size="sm"
@@ -242,6 +252,16 @@ export default function SchedulePage() {
                       {format(nextDate, "EEE, MMM d, yyyy")} · {c.serviceType} · {formatKES(c.pricePerVisit)}
                     </p>
                     <p className="text-xs text-muted-foreground">{c.address}</p>
+                    {c.startDate && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        📅 Start date: {format(new Date(c.startDate), "EEE, MMM d, yyyy")}
+                      </p>
+                    )}
+                    {c.notes?.includes("Booking ref:") && (
+                      <p className="text-xs text-muted-foreground/70 italic">
+                        {c.notes.match(/Booking ref: [^\s|]+/)?.[0]}
+                      </p>
+                    )}
                   </div>
                   <Button
                     size="sm"

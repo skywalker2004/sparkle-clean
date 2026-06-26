@@ -25,9 +25,11 @@ export interface Client {
   lastCleanedDate: string | null;
   status: ClientStatus;
   notes: string;
+  preferredDay?: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  startDate?: string;
 }
 
 export interface Invoice {
@@ -60,9 +62,34 @@ export interface DashboardStats {
   revenueThisMonth: number;
   outstandingBalance: number;
   upcomingThisWeek: number;
+  pendingBookings: number;
 }
 
 export interface MonthlyRevenue {
   month: string;
   revenue: number;
+}
+
+export interface Booking {
+  id: string;
+  bookingRef: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  address: string;
+  serviceType: string;
+  servicePrice: number;
+  quantity: number;
+  totalPrice: number;
+  preferredDate: string;
+  preferredTime: string;
+  frequency: string;
+  propertyType: string;
+  propertySize: string;
+  notes?: string;
+  status: "pending" | "confirmed" | "cancelled";
+  clientId?: string | null;
+  invoiceId?: string | null;
+  convertedToClient?: boolean;
+  createdAt: string;
 }

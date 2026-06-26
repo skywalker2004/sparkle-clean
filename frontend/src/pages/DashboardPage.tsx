@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { dashboardApi, getNextCleaningDate, clientsApi, recordCleaning } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Banknote, AlertCircle, CalendarDays, CheckCircle2, TrendingUp, Sparkles } from "lucide-react";
+import { Users, Banknote, AlertCircle, CalendarDays, CheckCircle2, TrendingUp, Sparkles, CalendarClock } from "lucide-react";
 import { format, isWithinInterval, startOfDay, addDays } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
@@ -18,11 +19,13 @@ const statCards: Array<{
   icon: typeof Users;
   gradient: string;
   isMoney?: boolean;
+  link?: string;
 }> = [
   { key: "totalActiveClients", label: "Active Clients", icon: Users, gradient: "gradient-card-1" },
   { key: "revenueThisMonth", label: "Revenue This Month", icon: Banknote, gradient: "gradient-card-2", isMoney: true },
   { key: "outstandingBalance", label: "Outstanding Balance", icon: AlertCircle, gradient: "gradient-card-3", isMoney: true },
   { key: "upcomingThisWeek", label: "Upcoming This Week", icon: CalendarDays, gradient: "gradient-card-4" },
+  { key: "pendingBookings", label: "Pending Bookings", icon: CalendarClock, gradient: "gradient-card-1", link: "/bookings" },
 ];
 
 const cardVariants = {
@@ -39,6 +42,7 @@ function formatKES(amount: number): string {
 
 export default function DashboardPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: dashboardApi.getStats,
@@ -107,10 +111,13 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map(({ key, label, icon: Icon, gradient, isMoney }, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {statCards.map(({ key, label, icon: Icon, gradient, isMoney, link }, i) => (
           <motion.div key={key} custom={i} initial="hidden" animate="visible" variants={cardVariants}>
-            <Card className={`${gradient} text-primary-foreground border-0 shadow-elevated overflow-hidden relative group hover:shadow-modal hover:scale-[1.02] transition-all duration-300`}>
+            <Card
+              className={`${gradient} text-primary-foreground border-0 shadow-elevated overflow-hidden relative group hover:shadow-modal hover:scale-[1.02] transition-all duration-300${link ? " cursor-pointer" : ""}`}
+              onClick={link ? () => navigate(link) : undefined}
+            >
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <CardContent className="p-5 relative">
                 <div className="flex items-center justify-between">

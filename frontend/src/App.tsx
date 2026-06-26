@@ -13,6 +13,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import ClientsPage from "@/pages/ClientsPage";
 import InvoicesPage from "@/pages/InvoicesPage";
 import SchedulePage from "@/pages/SchedulePage";
+import BookingsAdminPage from "@/pages/BookingsAdminPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="/clients" element={<ClientsPage />} />
                 <Route path="/invoices" element={<InvoicesPage />} />
                 <Route path="/schedule" element={<SchedulePage />} />
+                <Route path="/bookings" element={<BookingsAdminPage />} />
               </Route>
             </Route>
 

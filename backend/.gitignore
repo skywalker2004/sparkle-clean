@@ -1,4 +1,30 @@
-# Environment files (never commit secrets)
+# Dependencies
+node_modules/
+
+# Environment
 .env
+.env.local
+.env.production
 .env.*
 !.env.example
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Cache
+.cache/
+.parcel-cache/
