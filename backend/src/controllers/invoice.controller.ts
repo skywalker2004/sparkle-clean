@@ -1,6 +1,7 @@
 import { Response } from "express";
 import Invoice from "../models/Invoice.model";
 import Client from "../models/Client.model";
+import Booking from "../models/Booking.model";
 import { AuthRequest } from "../types";
 import { addDays } from "date-fns";
 
@@ -79,30 +80,36 @@ export const markUnpaid = async (req: AuthRequest, res: Response) => {
 
 export const recordCleaning = async (req: AuthRequest, res: Response) => {
   try {
+    console.log("recordCleaning req.body:", req.body);
     const { clientId, date, notes } = req.body;
+
+    console.log("Searching for clientId:", clientId);
     const client = await Client.findById(clientId);
+    console.log("Client found:", client ? { id: client._id, name: client.name } : null);
+
     if (!client) return res.status(404).json({ message: "Client not found" });
 
-    client.lastCleanedDate = date;
+    client.lastCleanedDate = new Date(date);
     if (notes) client.notes = notes;
     await client.save();
 
-    const count = await Invoice.countDocuments();
-    const invoiceNumber = `SC-${String(count + 1).padStart(4, "0")}`;
+    const invoiceNumber = `SC-${Date.now()}`;
 
     const invoice = await Invoice.create({
       invoiceNumber,
-      clientId: client.id,
+      client: client._id,
       clientName: client.name,
       amount: client.pricePerVisit,
-      dueDate: addDays(new Date(date), 14).toISOString(),
+      dueDate: addDays(new Date(date), 14),
       status: "unpaid",
       paidDate: null,
       notes: notes || "",
     });
-    res.status(201).json(invoice);
-  } catch {
-    res.status(500).json({ message: "Server error" });
+
+    res.status(201).json({ ...invoice.toJSON(), id: invoice._id });
+  } catch (error: any) {
+    console.error("recordCleaning error:", error.message, error.stack);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -136,11 +143,14 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
       return next >= now && next <= weekEnd;
     }).length;
 
+    const pendingBookings = await Booking.countDocuments({ status: "pending" });
+
     res.json({
       totalActiveClients: activeClients.length,
       revenueThisMonth: revenueThisMonth[0]?.total || 0,
       outstandingBalance: outstanding[0]?.total || 0,
       upcomingThisWeek,
+      pendingBookings,
     });
   } catch {
     res.status(500).json({ message: "Server error" });

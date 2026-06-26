@@ -17,6 +17,9 @@ export interface IBooking extends mongoose.Document {
   propertySize: 'Studio / Bedsitter' | '1 Bedroom' | '2 Bedrooms' | '3 Bedrooms' | '4 Bedrooms' | '5+ Bedrooms' | 'Large Commercial';
   notes?: string;
   status: 'pending' | 'confirmed' | 'cancelled';
+  clientId?: string | null;
+  invoiceId?: string | null;
+  convertedToClient: boolean;
   createdAt: Date;
 }
 
@@ -58,6 +61,9 @@ const BookingSchema: Schema = new Schema(
       enum: ['pending', 'confirmed', 'cancelled'],
       default: 'pending'
     },
+    clientId: { type: String, default: null },
+    invoiceId: { type: String, default: null },
+    convertedToClient: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
   },
   { timestamps: false }

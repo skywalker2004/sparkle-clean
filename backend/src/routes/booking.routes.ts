@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect, adminOnly } from '../middleware/auth.middleware';
-import { createBooking, getBookings, getBooking, updateBookingStatus } from '../controllers/booking.controller';
+import { createBooking, getBookings, getBooking, updateBookingStatus, confirmBooking } from '../controllers/booking.controller';
 
 const router = express.Router();
 
@@ -15,6 +15,9 @@ router.get('/', adminOnly, getBookings);
 
 // GET single booking - admin only
 router.get('/:id', adminOnly, getBooking);
+
+// Confirm booking - creates client and invoice
+router.put('/:id/confirm', adminOnly, confirmBooking);
 
 // UPDATE booking status - admin only
 router.put('/:id/status', adminOnly, updateBookingStatus);
