@@ -2,7 +2,7 @@ import { Response } from 'express';
 import Booking from '../models/Booking.model';
 import Client from '../models/Client.model';
 import Invoice from '../models/Invoice.model';
-import { AuthRequest } from '../types';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { addDays } from 'date-fns';
 import { sendClientConfirmationEmail, sendAdminNotificationEmail } from '../utils/email.service';
 
@@ -166,12 +166,16 @@ export const getBooking = async (req: any, res: Response) => {
 
 export const confirmBooking = async (req: AuthRequest, res: Response) => {
   try {
+    if (!req.userId) {
+      return res.status(401).json({ message: 'Not authorized — no user on request' });
+    }
+
     const booking = await Booking.findById(req.params.id);
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    const result = await convertBookingToClient(booking, req.user!._id.toString());
+    const result = await convertBookingToClient(booking, req.userId);
 
     res.json({
       message: 'Booking confirmed. Client and invoice created successfully.',
@@ -179,17 +183,21 @@ export const confirmBooking = async (req: AuthRequest, res: Response) => {
       invoice: result.invoice,
       booking: result.booking,
     });
-  } catch (error: any) {
-    if (error.message === 'Booking already confirmed and client created') {
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Booking already confirmed and client created') {
       return res.status(400).json({ message: error.message });
     }
-    console.error('confirmBooking error:', error);
-    res.status(500).json({ message: error.message });
+    console.error('Booking confirm error:', error);
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error) });
   }
 };
 
 export const updateBookingStatus = async (req: AuthRequest, res: Response) => {
   try {
+    if (!req.userId) {
+      return res.status(401).json({ message: 'Not authorized — no user on request' });
+    }
+
     const { status } = req.body;
     
     if (!status || !['pending', 'confirmed', 'cancelled'].includes(status)) {
@@ -202,7 +210,7 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response) => {
         return res.status(404).json({ message: 'Booking not found' });
       }
 
-      const result = await convertBookingToClient(booking, req.user!._id.toString());
+      const result = await convertBookingToClient(booking, req.userId);
 
       return res.json({
         message: 'Booking confirmed. Client and invoice created successfully.',
@@ -221,11 +229,11 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
     res.json(booking);
-  } catch (error: any) {
-    if (error.message === 'Booking already confirmed and client created') {
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Booking already confirmed and client created') {
       return res.status(400).json({ message: error.message });
     }
-    console.error('updateBookingStatus error:', error);
-    res.status(500).json({ message: error.message });
+    console.error('Booking confirm error:', error);
+    res.status(500).json({ message: error instanceof Error ? error.message : String(error) });
   }
 };
