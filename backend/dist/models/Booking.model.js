@@ -71,6 +71,9 @@ const BookingSchema = new mongoose_1.Schema({
         enum: ['pending', 'confirmed', 'cancelled'],
         default: 'pending'
     },
+    clientId: { type: String, default: null },
+    invoiceId: { type: String, default: null },
+    convertedToClient: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 }, { timestamps: false });
 BookingSchema.index({ phone: 'text', address: 'text', fullName: 'text' });

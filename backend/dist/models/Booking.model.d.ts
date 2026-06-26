@@ -16,6 +16,9 @@ export interface IBooking extends mongoose.Document {
     propertySize: 'Studio / Bedsitter' | '1 Bedroom' | '2 Bedrooms' | '3 Bedrooms' | '4 Bedrooms' | '5+ Bedrooms' | 'Large Commercial';
     notes?: string;
     status: 'pending' | 'confirmed' | 'cancelled';
+    clientId?: string | null;
+    invoiceId?: string | null;
+    convertedToClient: boolean;
     createdAt: Date;
 }
 declare const _default: mongoose.Model<IBooking, {}, {}, {}, mongoose.Document<unknown, {}, IBooking, {}, {}> & IBooking & Required<{
