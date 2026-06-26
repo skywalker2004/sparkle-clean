@@ -74,12 +74,21 @@ export default function SchedulePage() {
 
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: string) => {
     try {
-      await bookingsApi.updateStatus(bookingId, newStatus);
-      toast.success(`Booking ${newStatus}`);
+      if (newStatus === "confirmed") {
+        await bookingsApi.confirmBooking(bookingId);
+        toast.success("✅ Booking confirmed! Client and invoice created successfully.");
+        qc.invalidateQueries({ queryKey: ["clients"] });
+        qc.invalidateQueries({ queryKey: ["invoices"] });
+        qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      } else {
+        await bookingsApi.updateStatus(bookingId, newStatus);
+        toast.success(`Booking ${newStatus}`);
+      }
       setBookingStatusDialog(null);
       qc.invalidateQueries({ queryKey: ["bookings"] });
-    } catch {
-      toast.error("Failed to update booking status");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update booking status";
+      toast.error(message);
     }
   };
 
