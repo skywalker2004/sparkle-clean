@@ -15,6 +15,8 @@ router.use(auth_middleware_1.protect);
 router.get('/', auth_middleware_1.adminOnly, booking_controller_1.getBookings);
 // GET single booking - admin only
 router.get('/:id', auth_middleware_1.adminOnly, booking_controller_1.getBooking);
+// Confirm booking - creates client and invoice
+router.put('/:id/confirm', auth_middleware_1.adminOnly, booking_controller_1.confirmBooking);
 // UPDATE booking status - admin only
 router.put('/:id/status', auth_middleware_1.adminOnly, booking_controller_1.updateBookingStatus);
 exports.default = router;
