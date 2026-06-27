@@ -1,14 +1,27 @@
 import nodemailer from "nodemailer";
 
+const emailUser = process.env.EMAIL_USER?.trim();
+const emailPass = process.env.EMAIL_PASS?.trim().replace(/\s+/g, "");
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || "smtp.gmail.com",
   port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+  secure: process.env.EMAIL_SECURE === "true",
+  auth: emailUser && emailPass ? { user: emailUser, pass: emailPass } : undefined,
 });
+
+function logEmailAuthHint(error: unknown): void {
+  if (error && typeof error === "object" && "code" in error && error.code === "EAUTH") {
+    console.error(
+      "Gmail SMTP auth failed (535 BadCredentials). Fix backend/.env:\n" +
+      "  1. Enable 2-Step Verification: https://myaccount.google.com/security\n" +
+      "  2. Create App Password: https://myaccount.google.com/apppasswords (Mail → Windows)\n" +
+      "  3. Set EMAIL_USER to your full Gmail address\n" +
+      "  4. Set EMAIL_PASS to the 16-character app password (no spaces)\n" +
+      "  Do NOT use your regular Gmail password."
+    );
+  }
+}
 
 function formatDate(dateStr: string): string {
   try {
@@ -43,6 +56,11 @@ function getFrequency(booking: any): string {
 // ── CLIENT EMAIL ──────────────────────────────────────────────
 export async function sendClientConfirmationEmail(booking: any): Promise<void> {
   if (!booking.email) return;
+
+  if (!emailUser || !emailPass) {
+    console.error("EMAIL_USER or EMAIL_PASS missing in .env — skipping client email");
+    return;
+  }
 
   const firstName = booking.fullName?.split(" ")[0] || "Valued Client";
   const serviceName = getServiceName(booking);
@@ -195,20 +213,29 @@ export async function sendClientConfirmationEmail(booking: any): Promise<void> {
 </body>
 </html>`;
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: booking.email,
-    subject: `✅ Booking Confirmed — ${booking.bookingRef} | SparkleClean Kenya`,
-    html,
-  });
-
-  console.log(`✅ Client confirmation email sent to ${booking.email}`);
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: booking.email,
+      subject: `✅ Booking Confirmed — ${booking.bookingRef} | SparkleClean Kenya`,
+      html,
+    });
+    console.log(`✅ Client confirmation email sent to ${booking.email}`);
+  } catch (error) {
+    logEmailAuthHint(error);
+    throw error;
+  }
 }
 
 // ── ADMIN EMAIL ───────────────────────────────────────────────
 export async function sendAdminNotificationEmail(booking: any): Promise<void> {
   const adminEmail = process.env.ADMIN_EMAIL;
   if (!adminEmail) return;
+
+  if (!emailUser || !emailPass) {
+    console.error("EMAIL_USER or EMAIL_PASS missing in .env — skipping admin email");
+    return;
+  }
 
   const serviceName = getServiceName(booking);
   const totalAmount = getTotalAmount(booking);
@@ -372,12 +399,16 @@ export async function sendAdminNotificationEmail(booking: any): Promise<void> {
 </body>
 </html>`;
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: adminEmail,
-    subject: `🔔 New Booking — ${booking.bookingRef} | ${booking.fullName} | ${formatKES(totalAmount)}`,
-    html,
-  });
-
-  console.log(`✅ Admin notification email sent to ${adminEmail}`);
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: adminEmail,
+      subject: `🔔 New Booking — ${booking.bookingRef} | ${booking.fullName} | ${formatKES(totalAmount)}`,
+      html,
+    });
+    console.log(`✅ Admin notification email sent to ${adminEmail}`);
+  } catch (error) {
+    logEmailAuthHint(error);
+    throw error;
+  }
 }
