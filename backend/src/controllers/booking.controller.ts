@@ -123,14 +123,19 @@ export const createBooking = async (req: any, res: Response) => {
     
     const savedBooking = await booking.save();
 
-    res.status(201).json(savedBooking);
-
-    void Promise.allSettled([
-      savedBooking.email
-        ? sendClientConfirmationEmail(savedBooking)
-        : Promise.resolve(),
+    // Send emails — wrapped so they never crash the booking
+    Promise.allSettled([
       sendAdminNotificationEmail(savedBooking),
-    ]);
+      savedBooking.email ? sendClientConfirmationEmail(savedBooking) : Promise.resolve(),
+    ]).then(results => {
+      results.forEach((result, i) => {
+        if (result.status === "rejected") {
+          console.error(`Email ${i} failed:`, result.reason);
+        }
+      });
+    });
+
+    res.status(201).json(savedBooking);
   } catch (error: any) {
     res.status(400).json({ message: 'Failed to create booking', error: error.message });
   }
