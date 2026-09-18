@@ -13,47 +13,6 @@ import { toast } from "sonner";
 import { bookingsApi } from "@/lib/api";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type ServiceArtwork = {
-  title: string;
-  subtitle: string;
-  emoji: string;
-  colors: [string, string];
-};
-
-const createServiceImage = ({ title, subtitle, emoji, colors }: ServiceArtwork) => {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
-      <title>${title}</title>
-      <desc>${subtitle}</desc>
-      <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${colors[0]}" />
-          <stop offset="100%" stop-color="${colors[1]}" />
-        </linearGradient>
-        <radialGradient id="glow" cx="50%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
-          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="800" height="600" rx="36" fill="url(#bg)" />
-      <rect x="36" y="36" width="728" height="528" rx="28" fill="#000000" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.14" />
-      <circle cx="620" cy="110" r="150" fill="url(#glow)" />
-      <circle cx="180" cy="150" r="90" fill="#ffffff" fill-opacity="0.10" />
-      <circle cx="650" cy="420" r="120" fill="#000000" fill-opacity="0.12" />
-      <text x="90" y="185" font-size="120" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif">${emoji}</text>
-      <rect x="90" y="240" width="620" height="190" rx="28" fill="#0f172a" fill-opacity="0.30" stroke="#ffffff" stroke-opacity="0.16" />
-      <text x="120" y="305" font-size="42" font-weight="700" fill="#ffffff" font-family="Inter, Arial, sans-serif">${title}</text>
-      <text x="120" y="360" font-size="24" fill="#e2e8f0" fill-opacity="0.95" font-family="Inter, Arial, sans-serif">${subtitle}</text>
-      <rect x="120" y="392" width="170" height="10" rx="5" fill="#ffffff" fill-opacity="0.4" />
-      <rect x="308" y="392" width="92" height="10" rx="5" fill="#ffffff" fill-opacity="0.22" />
-      <rect x="410" y="392" width="140" height="10" rx="5" fill="#ffffff" fill-opacity="0.22" />
-    </svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-};
-
-const art = (title: string, subtitle: string, emoji: string, colors: [string, string]) =>
-  createServiceImage({ title, subtitle, emoji, colors });
-
 const PROPERTY_TYPES = [
   "Apartment",
   "Maisonette",
@@ -88,6 +47,22 @@ const BOOKING_FREQUENCIES = [
   "Monthly",
 ] as const;
 
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=85&auto=format&fit=crop";
+
+// Service-specific images for premium visual consistency
+const SERVICE_IMAGES = {
+  bedroom: "https://images.unsplash.com/photo-1505628346881-b72b27e84530?w=800&q=85&auto=format&fit=crop",
+  livingRoom: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=85&auto=format&fit=crop",
+  rug: "https://images.unsplash.com/photo-1584678457450-de5afc6ece85?w=800&q=85&auto=format&fit=crop",
+  restaurant: "https://images.unsplash.com/photo-1517248135467-4d71bcdd2085?w=800&q=85&auto=format&fit=crop",
+  ceiling: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=85&auto=format&fit=crop",
+  tile: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=85&auto=format&fit=crop",
+  appliance: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=85&auto=format&fit=crop",
+  outdoor: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=85&auto=format&fit=crop",
+  maintenance: "https://images.unsplash.com/photo-1527515637462-cff94aca208e?w=800&q=85&auto=format&fit=crop",
+};
+
 const SERVICE_DETAILS = [
   {
     category: "RESIDENTIAL CLEANING",
@@ -98,49 +73,49 @@ const SERVICE_DETAILS = [
         name: "Standard House Clean",
         desc: "Perfect for regular homes",
         details: "Comprehensive cleaning of 2-3 bedroom house including dusting, vacuuming, mopping, bathroom cleaning, and kitchen tidying",
-        image: art("Standard House Clean", "Dusting, vacuuming, mopping", "🏠", ["#2563eb", "#1d4ed8"]),
+        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=85&auto=format&fit=crop",
         price: 2500,
       },
       {
         name: "Deep House Clean",
         desc: "Thorough top-to-bottom cleaning",
         details: "Intensive deep cleaning including baseboards, light fixtures, inside cabinets, deep carpet shampooing, and tile grout cleaning",
-        image: art("Deep House Clean", "Top-to-bottom deep refresh", "🧼", ["#1e40af", "#4f46e5"]),
+        imageUrl: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=85&auto=format&fit=crop",
         price: 5500,
       },
       {
         name: "Move-In Cleaning",
         desc: "Before you settle in",
         details: "Complete property sanitization before moving in, including wall cleaning, cabinet sanitization, and deep appliance cleaning",
-        image: art("Move-In Cleaning", "Fresh start sanitization", "📦", ["#0f766e", "#0284c7"]),
+        imageUrl: "https://images.unsplash.com/photo-1560440021-33f9b867899d?w=800&q=85&auto=format&fit=crop",
         price: 7000,
       },
       {
         name: "Move-Out Cleaning",
         desc: "Leave it spotless",
         details: "Full property restoration cleaning after vacating, ensuring all surfaces are impeccable for the next tenant",
-        image: art("Move-Out Cleaning", "End-of-tenancy restore", "🚪", ["#334155", "#2563eb"]),
+        imageUrl: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=85&auto=format&fit=crop",
         price: 7000,
       },
       {
         name: "Post-Construction Clean",
         desc: "Remove all dust and debris",
         details: "Specialized cleaning to remove construction dust, debris, and polish all surfaces for final finishing",
-        image: art("Post-Construction Clean", "Dust, debris, polish", "🏗️", ["#7c3aed", "#1d4ed8"]),
+        imageUrl: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=85&auto=format&fit=crop",
         price: 12000,
       },
       {
         name: "After-Party Clean",
         desc: "Party cleanup services",
         details: "Professional post-event cleanup including floor cleaning, trash removal, and full restoration",
-        image: art("After-Party Clean", "Reset after the celebration", "🎉", ["#ec4899", "#7c3aed"]),
+        imageUrl: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=85&auto=format&fit=crop",
         price: 4500,
       },
       {
         name: "Spring/Seasonal Clean",
         desc: "Refresh your home seasonally",
         details: "Full seasonal refresh including window cleaning, ceiling fans, and deep carpet cleaning",
-        image: art("Spring/Seasonal Clean", "Seasonal refresh and reset", "🌸", ["#0f766e", "#3b82f6"]),
+        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=85&auto=format&fit=crop",
         price: 6000,
       },
     ],
@@ -154,14 +129,14 @@ const SERVICE_DETAILS = [
         name: "Kitchen Deep Clean",
         desc: "Professional kitchen cleaning",
         details: "Deep cleaning of oven interior, cabinet degreasing, appliance exterior, and tile grout restoration",
-        image: art("Kitchen Deep Clean", "Degrease, sanitize, shine", "🍳", ["#7c3aed", "#a855f7"]),
+        imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=85&auto=format&fit=crop",
         price: 2000,
       },
       {
         name: "Bathroom Deep Clean",
         desc: "Per bathroom",
         details: "Tile scrubbing, fixture polishing, grout cleaning, and disinfection of all surfaces",
-        image: art("Bathroom Deep Clean", "Scrub, polish, disinfect", "🚿", ["#8b5cf6", "#db2777"]),
+        imageUrl: "https://images.unsplash.com/photo-155232321554-5fefe8c9ef14?w=800&q=85&auto=format&fit=crop",
         price: 1500,
         perUnit: true,
       },
@@ -169,7 +144,7 @@ const SERVICE_DETAILS = [
         name: "Bedroom Clean",
         desc: "Per bedroom",
         details: "Dusting, vacuuming, bed cleaning, and comprehensive surface disinfection",
-        image: art("Bedroom Clean", "Restful room reset", "🛏️", ["#a855f7", "#6366f1"]),
+        imageUrl: SERVICE_IMAGES.bedroom,
         price: 1200,
         perUnit: true,
       },
@@ -177,7 +152,7 @@ const SERVICE_DETAILS = [
         name: "Living Room Clean",
         desc: "Full living room refresh",
         details: "Complete living area cleaning including upholstery care, floor treatment, and dust removal",
-        image: art("Living Room Clean", "Comfort area refresh", "🛋️", ["#6366f1", "#ec4899"]),
+        imageUrl: SERVICE_IMAGES.livingRoom,
         price: 1500,
       },
     ],
@@ -191,7 +166,7 @@ const SERVICE_DETAILS = [
         name: "Carpet Cleaning",
         desc: "Per room professional cleaning",
         details: "Deep carpet shampooing with steam extraction and deodorization treatment",
-        image: art("Carpet Cleaning", "Steam extraction and deodorize", "🧽", ["#ec4899", "#f97316"]),
+        imageUrl: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&q=85&auto=format&fit=crop",
         price: 1800,
         perUnit: true,
       },
@@ -199,35 +174,35 @@ const SERVICE_DETAILS = [
         name: "Sofa/Couch Cleaning (2-seater)",
         desc: "2-seater couch",
         details: "Professional upholstery cleaning with fabric protection treatment",
-        image: art("2-Seater Sofa Cleaning", "Upholstery protection treatment", "🛋️", ["#db2777", "#8b5cf6"]),
+        imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=85&auto=format&fit=crop",
         price: 2500,
       },
       {
         name: "Sofa/Couch Cleaning (3-seater)",
         desc: "3-seater couch",
         details: "Deep upholstery restoration including stain treatment and deodorization",
-        image: art("3-Seater Sofa Cleaning", "Deep upholstery restore", "🪑", ["#be185d", "#6366f1"]),
+        imageUrl: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&q=85&auto=format&fit=crop",
         price: 3500,
       },
       {
         name: "Mattress Cleaning (single)",
         desc: "Single mattress",
         details: "Dust mite elimination, stain removal, and complete sanitization",
-        image: art("Single Mattress Cleaning", "Allergen and stain removal", "🛏️", ["#f472b6", "#8b5cf6"]),
+        imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=85&auto=format&fit=crop",
         price: 1500,
       },
       {
         name: "Mattress Cleaning (double/king)",
         desc: "Double/king mattress",
         details: "Professional deep cleaning with allergen and dust removal",
-        image: art("Double/King Mattress Cleaning", "Deep sanitization finish", "🛏️", ["#fb7185", "#7c3aed"]),
+        imageUrl: "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&q=85&auto=format&fit=crop",
         price: 2000,
       },
       {
         name: "Rug Cleaning",
         desc: "Standard rug",
         details: "Specialized rug cleaning with fabric-specific treatment",
-        image: art("Rug Cleaning", "Fabric-safe rug treatment", "🧶", ["#c084fc", "#ec4899"]),
+        imageUrl: SERVICE_IMAGES.rug,
         price: 1200,
       },
     ],
@@ -241,35 +216,35 @@ const SERVICE_DETAILS = [
         name: "Office Clean (small, up to 50sqm)",
         desc: "Small office space",
         details: "Desk cleaning, floor care, bathroom sanitation, and trash removal",
-        image: art("Small Office Clean", "Desks, floors, bathrooms", "🖥️", ["#16a34a", "#0f766e"]),
+        imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=85&auto=format&fit=crop",
         price: 4000,
       },
       {
         name: "Office Clean (medium, 50-150sqm)",
         desc: "Medium office space",
         details: "Comprehensive office cleaning including conference rooms and common areas",
-        image: art("Medium Office Clean", "Conference and common areas", "🗂️", ["#0f766e", "#22c55e"]),
+        imageUrl: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=85&auto=format&fit=crop",
         price: 8000,
       },
       {
         name: "Office Clean (large, 150sqm+)",
         desc: "Large office space",
         details: "Full-scale office sanitization with specialized equipment and multiple cleaners",
-        image: art("Large Office Clean", "Multi-team sanitization", "🏬", ["#166534", "#14b8a6"]),
+        imageUrl: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=85&auto=format&fit=crop",
         price: 15000,
       },
       {
         name: "Retail Shop Clean",
         desc: "Retail space cleaning",
         details: "Display cleaning, floor care, and customer area sanitization",
-        image: art("Retail Shop Clean", "Displays and floors", "🛍️", ["#059669", "#22c55e"]),
+        imageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=85&auto=format&fit=crop",
         price: 5000,
       },
       {
         name: "Restaurant/Café Clean",
         desc: "Food service establishment",
         details: "Health-code compliant cleaning including kitchen deep clean and dining area",
-        image: art("Restaurant/Café Clean", "Kitchen and dining hygiene", "☕", ["#10b981", "#f59e0b"]),
+        imageUrl: SERVICE_IMAGES.restaurant,
         price: 9000,
       },
     ],
@@ -283,7 +258,7 @@ const SERVICE_DETAILS = [
         name: "Window Cleaning (interior)",
         desc: "Per window",
         details: "Professional window glass cleaning with streak-free finish",
-        image: art("Interior Window Cleaning", "Streak-free glass finish", "🪟", ["#f59e0b", "#eab308"]),
+        imageUrl: "https://images.unsplash.com/photo-1527515862978-031310ffb3d6?w=800&q=85&auto=format&fit=crop",
         price: 150,
         perUnit: true,
       },
@@ -291,7 +266,7 @@ const SERVICE_DETAILS = [
         name: "Window Cleaning (interior + exterior)",
         desc: "Per window",
         details: "Complete window cleaning including frames and sills",
-        image: art("Interior + Exterior Window Cleaning", "Frames, sills, glass", "🧴", ["#d97706", "#f97316"]),
+        imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=85&auto=format&fit=crop",
         price: 250,
         perUnit: true,
       },
@@ -299,35 +274,35 @@ const SERVICE_DETAILS = [
         name: "Ceiling and Wall Wash",
         desc: "Full cleaning",
         details: "Spider web removal, stain treatment, and wall restoration",
-        image: art("Ceiling and Wall Wash", "Webs, stains, restoration", "🧽", ["#eab308", "#f59e0b"]),
+        imageUrl: SERVICE_IMAGES.ceiling,
         price: 3000,
       },
       {
         name: "Tile and Grout Deep Clean",
         desc: "Complete tile cleaning",
         details: "Professional grout restoration and tile polishing with anti-bacterial treatment",
-        image: art("Tile and Grout Deep Clean", "Restore grout and shine", "🧼", ["#fbbf24", "#d97706"]),
+        imageUrl: SERVICE_IMAGES.tile,
         price: 2500,
       },
       {
         name: "Fridge/Freezer Clean",
         desc: "Deep appliance clean",
         details: "Interior and exterior cleaning with sanitization and deodorization",
-        image: art("Fridge/Freezer Clean", "Sanitize and deodorize", "🧊", ["#38bdf8", "#0ea5e9"]),
+        imageUrl: SERVICE_IMAGES.appliance,
         price: 1000,
       },
       {
         name: "Oven Deep Clean",
         desc: "Complete oven cleaning",
         details: "Interior and exterior oven restoration with chemical-free methods",
-        image: art("Oven Deep Clean", "Heat-safe deep clean", "🔥", ["#f97316", "#ef4444"]),
+        imageUrl: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=85&auto=format&fit=crop",
         price: 1500,
       },
       {
         name: "Pressure Washing",
         desc: "Per area",
         details: "High-pressure cleaning for driveways, patios, and exterior surfaces",
-        image: art("Pressure Washing", "Driveways and patios", "💦", ["#0ea5e9", "#14b8a6"]),
+        imageUrl: SERVICE_IMAGES.outdoor,
         price: 3500,
       },
     ],
@@ -341,21 +316,21 @@ const SERVICE_DETAILS = [
         name: "Weekly Maintenance Clean",
         desc: "Per visit",
         details: "Regular weekly maintenance to keep your space consistently clean",
-        image: art("Weekly Maintenance Clean", "Keep it consistently tidy", "♻️", ["#14b8a6", "#0ea5e9"]),
+        imageUrl: SERVICE_IMAGES.maintenance,
         price: 2000,
       },
       {
         name: "Biweekly Maintenance Clean",
         desc: "Per visit",
         details: "Twice monthly maintenance cleaning service",
-        image: art("Biweekly Maintenance Clean", "Every two weeks refresh", "🗓️", ["#0f766e", "#22c55e"]),
+        imageUrl: SERVICE_IMAGES.maintenance,
         price: 2500,
       },
       {
         name: "Monthly Full Clean",
         desc: "Per visit",
         details: "Comprehensive monthly deep cleaning to maintain pristine conditions",
-        image: art("Monthly Full Clean", "Monthly deep pristine reset", "✨", ["#06b6d4", "#14b8a6"]),
+        imageUrl: SERVICE_IMAGES.maintenance,
         price: 4500,
       },
     ],
@@ -387,7 +362,7 @@ interface ServiceItem {
   name: string;
   desc: string;
   details: string;
-  image: string;
+  imageUrl: string;
   price: number;
   perUnit?: boolean;
 }
@@ -582,13 +557,17 @@ export default function BookingPage() {
                           className="group/card relative cursor-pointer"
                         >
                           <Card className="h-full bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 border border-white/10 hover:border-blue-500/50 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20">
-                            <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+                            <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
                               <img
-                                src={service.image}
+                                src={service.imageUrl || FALLBACK_IMAGE}
                                 alt={service.name}
+                                loading="lazy"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                                }}
                                 className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-300"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                               <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
                                 <Star className="w-3 h-3 text-yellow-200 fill-yellow-200" />
                                 <span className="text-xs font-semibold text-yellow-200">5.0</span>
