@@ -123,16 +123,21 @@ export const createBooking = async (req: any, res: Response) => {
     
     const savedBooking = await booking.save();
 
-    // Send emails — wrapped so they never crash the booking
-    Promise.allSettled([
-      sendAdminNotificationEmail(savedBooking),
-      savedBooking.email ? sendClientConfirmationEmail(savedBooking) : Promise.resolve(),
-    ]).then(results => {
-      results.forEach((result, i) => {
-        if (result.status === "rejected") {
-          console.error(`Email ${i} failed:`, result.reason);
+    // Trigger emails asynchronously and log errors so booking response isn't impacted
+    setImmediate(async () => {
+      console.log("📬 Triggering emails for booking:", savedBooking.bookingRef);
+      try {
+        await sendAdminNotificationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking);
+      } catch (e: any) {
+        console.error("Admin email failed:", e && e.message ? e.message : e);
+      }
+      if (savedBooking.email) {
+        try {
+          await sendClientConfirmationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking);
+        } catch (e: any) {
+          console.error("Client email failed:", e && e.message ? e.message : e);
         }
-      });
+      }
     });
 
     res.status(201).json(savedBooking);
