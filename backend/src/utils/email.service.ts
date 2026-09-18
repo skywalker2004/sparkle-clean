@@ -1,13 +1,43 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import nodemailer from "nodemailer";
+
+console.log("EMAIL CONFIG CHECK:", {
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  user: process.env.EMAIL_USER,
+  pass: process.env.EMAIL_PASS ? "SET (" + process.env.EMAIL_PASS.length + " chars)" : "MISSING",
+  from: process.env.EMAIL_FROM,
+  adminEmail: process.env.ADMIN_EMAIL,
+});
 
 const emailUser = process.env.EMAIL_USER?.trim();
 const emailPass = process.env.EMAIL_PASS?.trim().replace(/\s+/g, "");
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: process.env.EMAIL_SECURE === "true",
-  auth: emailUser && emailPass ? { user: emailUser, pass: emailPass } : undefined,
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: emailUser,
+    pass: emailPass,
+  },
+  tls: {
+    rejectUnauthorized: false,
+    ciphers: "SSLv3",
+  },
+  debug: true,
+  logger: true,
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ EMAIL TRANSPORTER FAILED:", error && (error as any).message ? (error as any).message : error);
+    console.error("Full error:", error);
+  } else {
+    console.log("✅ EMAIL TRANSPORTER READY — Server is ready to send emails");
+  }
 });
 
 function logEmailAuthHint(error: unknown): void {
@@ -55,7 +85,10 @@ function getFrequency(booking: any): string {
 
 // ── CLIENT EMAIL ──────────────────────────────────────────────
 export async function sendClientConfirmationEmail(booking: any): Promise<void> {
-  if (!booking.email) return;
+  if (!booking.email) {
+    console.log("⚠️ No client email provided — skipping client email");
+    return;
+  }
 
   if (!emailUser || !emailPass) {
     console.error("EMAIL_USER or EMAIL_PASS missing in .env — skipping client email");
@@ -214,23 +247,28 @@ export async function sendClientConfirmationEmail(booking: any): Promise<void> {
 </html>`;
 
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+    console.log("📧 Sending client confirmation to:", booking.email);
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: booking.email,
       subject: `✅ Booking Confirmed — ${booking.bookingRef} | SparkleClean Kenya`,
       html,
     });
-    console.log(`✅ Client confirmation email sent to ${booking.email}`);
-  } catch (error) {
+    console.log("✅ Client email sent:", info.messageId, "Response:", (info as any).response || "-");
+  } catch (error: any) {
     logEmailAuthHint(error);
-    throw error;
+    console.error("❌ CLIENT EMAIL FAILED:", error && error.message ? error.message : error);
+    console.error("Error details:", error);
   }
 }
 
 // ── ADMIN EMAIL ───────────────────────────────────────────────
 export async function sendAdminNotificationEmail(booking: any): Promise<void> {
   const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) return;
+  if (!adminEmail) {
+    console.error("❌ ADMIN_EMAIL not set in .env");
+    return;
+  }
 
   if (!emailUser || !emailPass) {
     console.error("EMAIL_USER or EMAIL_PASS missing in .env — skipping admin email");
@@ -400,15 +438,17 @@ export async function sendAdminNotificationEmail(booking: any): Promise<void> {
 </html>`;
 
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+    console.log("📧 Sending admin notification to:", adminEmail);
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: adminEmail,
       subject: `🔔 New Booking — ${booking.bookingRef} | ${booking.fullName} | ${formatKES(totalAmount)}`,
       html,
     });
-    console.log(`✅ Admin notification email sent to ${adminEmail}`);
-  } catch (error) {
+    console.log("✅ Admin email sent:", info.messageId, "Response:", (info as any).response || "-");
+  } catch (error: any) {
     logEmailAuthHint(error);
-    throw error;
+    console.error("❌ ADMIN EMAIL FAILED:", error && error.message ? error.message : error);
+    console.error("Error details:", error);
   }
 }
