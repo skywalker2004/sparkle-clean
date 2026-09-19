@@ -48,19 +48,41 @@ const BOOKING_FREQUENCIES = [
 ] as const;
 
 const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=85&auto=format&fit=crop";
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=85&auto=format&fit=crop";
 
-// Service-specific images for premium visual consistency
 const SERVICE_IMAGES = {
-  bedroom: "https://images.unsplash.com/photo-1505628346881-b72b27e84530?w=800&q=85&auto=format&fit=crop",
-  livingRoom: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=85&auto=format&fit=crop",
-  rug: "https://images.unsplash.com/photo-1584678457450-de5afc6ece85?w=800&q=85&auto=format&fit=crop",
-  restaurant: "https://images.unsplash.com/photo-1517248135467-4d71bcdd2085?w=800&q=85&auto=format&fit=crop",
-  ceiling: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=85&auto=format&fit=crop",
-  tile: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=85&auto=format&fit=crop",
-  appliance: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=85&auto=format&fit=crop",
-  outdoor: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=85&auto=format&fit=crop",
-  maintenance: "https://images.unsplash.com/photo-1527515637462-cff94aca208e?w=800&q=85&auto=format&fit=crop",
+  standardHouse: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=85&auto=format&fit=crop",
+  deepHouse: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=85&auto=format&fit=crop",
+  moveIn: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=85&auto=format&fit=crop",
+  moveOut: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=85&auto=format&fit=crop",
+  postConstruction: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=85&auto=format&fit=crop",
+  afterParty: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=85&auto=format&fit=crop",
+  seasonal: "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=800&q=85&auto=format&fit=crop",
+  kitchen: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=85&auto=format&fit=crop",
+  bathroom: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=85&auto=format&fit=crop",
+  bedroom: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=85&auto=format&fit=crop",
+  livingRoom: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&q=85&auto=format&fit=crop",
+  carpet: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&q=85&auto=format&fit=crop",
+  sofaTwo: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=85&auto=format&fit=crop",
+  sofaThree: "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=85&auto=format&fit=crop",
+  mattressSingle: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=85&auto=format&fit=crop",
+  mattressDouble: "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&q=85&auto=format&fit=crop",
+  rug: "https://images.unsplash.com/photo-1587502537745-84b86da1204f?w=800&q=85&auto=format&fit=crop",
+  officeSmall: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=85&auto=format&fit=crop",
+  officeMedium: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=85&auto=format&fit=crop",
+  officeLarge: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=85&auto=format&fit=crop",
+  retail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=85&auto=format&fit=crop",
+  restaurant: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=85&auto=format&fit=crop",
+  windowInterior: "https://images.unsplash.com/photo-1527515862978-031310ffb3d6?w=800&q=85&auto=format&fit=crop",
+  windowInteriorExterior: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&q=85&auto=format&fit=crop",
+  ceiling: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=800&q=85&auto=format&fit=crop",
+  tile: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800&q=85&auto=format&fit=crop",
+  fridge: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=85&auto=format&fit=crop",
+  oven: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=85&auto=format&fit=crop",
+  pressureWashing: "https://images.unsplash.com/photo-1595535373192-1fa3ff775d24?w=800&q=85&auto=format&fit=crop",
+  weeklyMaintenance: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&q=85&auto=format&fit=crop",
+  biweeklyMaintenance: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=85&auto=format&fit=crop",
+  monthlyFullClean: "https://images.unsplash.com/photo-1615873968403-89e068629265?w=800&q=85&auto=format&fit=crop",
 };
 
 const SERVICE_DETAILS = [
@@ -73,49 +95,49 @@ const SERVICE_DETAILS = [
         name: "Standard House Clean",
         desc: "Perfect for regular homes",
         details: "Comprehensive cleaning of 2-3 bedroom house including dusting, vacuuming, mopping, bathroom cleaning, and kitchen tidying",
-        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.standardHouse,
         price: 2500,
       },
       {
         name: "Deep House Clean",
         desc: "Thorough top-to-bottom cleaning",
         details: "Intensive deep cleaning including baseboards, light fixtures, inside cabinets, deep carpet shampooing, and tile grout cleaning",
-        imageUrl: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.deepHouse,
         price: 5500,
       },
       {
         name: "Move-In Cleaning",
         desc: "Before you settle in",
         details: "Complete property sanitization before moving in, including wall cleaning, cabinet sanitization, and deep appliance cleaning",
-        imageUrl: "https://images.unsplash.com/photo-1560440021-33f9b867899d?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.moveIn,
         price: 7000,
       },
       {
         name: "Move-Out Cleaning",
         desc: "Leave it spotless",
         details: "Full property restoration cleaning after vacating, ensuring all surfaces are impeccable for the next tenant",
-        imageUrl: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.moveOut,
         price: 7000,
       },
       {
         name: "Post-Construction Clean",
         desc: "Remove all dust and debris",
         details: "Specialized cleaning to remove construction dust, debris, and polish all surfaces for final finishing",
-        imageUrl: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.postConstruction,
         price: 12000,
       },
       {
         name: "After-Party Clean",
         desc: "Party cleanup services",
         details: "Professional post-event cleanup including floor cleaning, trash removal, and full restoration",
-        imageUrl: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.afterParty,
         price: 4500,
       },
       {
         name: "Spring/Seasonal Clean",
         desc: "Refresh your home seasonally",
         details: "Full seasonal refresh including window cleaning, ceiling fans, and deep carpet cleaning",
-        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.seasonal,
         price: 6000,
       },
     ],
@@ -129,14 +151,14 @@ const SERVICE_DETAILS = [
         name: "Kitchen Deep Clean",
         desc: "Professional kitchen cleaning",
         details: "Deep cleaning of oven interior, cabinet degreasing, appliance exterior, and tile grout restoration",
-        imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.kitchen,
         price: 2000,
       },
       {
         name: "Bathroom Deep Clean",
         desc: "Per bathroom",
         details: "Tile scrubbing, fixture polishing, grout cleaning, and disinfection of all surfaces",
-        imageUrl: "https://images.unsplash.com/photo-155232321554-5fefe8c9ef14?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.bathroom,
         price: 1500,
         perUnit: true,
       },
@@ -166,7 +188,7 @@ const SERVICE_DETAILS = [
         name: "Carpet Cleaning",
         desc: "Per room professional cleaning",
         details: "Deep carpet shampooing with steam extraction and deodorization treatment",
-        imageUrl: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.carpet,
         price: 1800,
         perUnit: true,
       },
@@ -174,28 +196,28 @@ const SERVICE_DETAILS = [
         name: "Sofa/Couch Cleaning (2-seater)",
         desc: "2-seater couch",
         details: "Professional upholstery cleaning with fabric protection treatment",
-        imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.sofaTwo,
         price: 2500,
       },
       {
         name: "Sofa/Couch Cleaning (3-seater)",
         desc: "3-seater couch",
         details: "Deep upholstery restoration including stain treatment and deodorization",
-        imageUrl: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.sofaThree,
         price: 3500,
       },
       {
         name: "Mattress Cleaning (single)",
         desc: "Single mattress",
         details: "Dust mite elimination, stain removal, and complete sanitization",
-        imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.mattressSingle,
         price: 1500,
       },
       {
         name: "Mattress Cleaning (double/king)",
         desc: "Double/king mattress",
         details: "Professional deep cleaning with allergen and dust removal",
-        imageUrl: "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.mattressDouble,
         price: 2000,
       },
       {
@@ -216,28 +238,28 @@ const SERVICE_DETAILS = [
         name: "Office Clean (small, up to 50sqm)",
         desc: "Small office space",
         details: "Desk cleaning, floor care, bathroom sanitation, and trash removal",
-        imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.officeSmall,
         price: 4000,
       },
       {
         name: "Office Clean (medium, 50-150sqm)",
         desc: "Medium office space",
         details: "Comprehensive office cleaning including conference rooms and common areas",
-        imageUrl: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.officeMedium,
         price: 8000,
       },
       {
         name: "Office Clean (large, 150sqm+)",
         desc: "Large office space",
         details: "Full-scale office sanitization with specialized equipment and multiple cleaners",
-        imageUrl: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.officeLarge,
         price: 15000,
       },
       {
         name: "Retail Shop Clean",
         desc: "Retail space cleaning",
         details: "Display cleaning, floor care, and customer area sanitization",
-        imageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.retail,
         price: 5000,
       },
       {
@@ -258,7 +280,7 @@ const SERVICE_DETAILS = [
         name: "Window Cleaning (interior)",
         desc: "Per window",
         details: "Professional window glass cleaning with streak-free finish",
-        imageUrl: "https://images.unsplash.com/photo-1527515862978-031310ffb3d6?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.windowInterior,
         price: 150,
         perUnit: true,
       },
@@ -266,7 +288,7 @@ const SERVICE_DETAILS = [
         name: "Window Cleaning (interior + exterior)",
         desc: "Per window",
         details: "Complete window cleaning including frames and sills",
-        imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.windowInteriorExterior,
         price: 250,
         perUnit: true,
       },
@@ -288,21 +310,21 @@ const SERVICE_DETAILS = [
         name: "Fridge/Freezer Clean",
         desc: "Deep appliance clean",
         details: "Interior and exterior cleaning with sanitization and deodorization",
-        imageUrl: SERVICE_IMAGES.appliance,
+        imageUrl: SERVICE_IMAGES.fridge,
         price: 1000,
       },
       {
         name: "Oven Deep Clean",
         desc: "Complete oven cleaning",
         details: "Interior and exterior oven restoration with chemical-free methods",
-        imageUrl: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=85&auto=format&fit=crop",
+        imageUrl: SERVICE_IMAGES.oven,
         price: 1500,
       },
       {
         name: "Pressure Washing",
         desc: "Per area",
         details: "High-pressure cleaning for driveways, patios, and exterior surfaces",
-        imageUrl: SERVICE_IMAGES.outdoor,
+        imageUrl: SERVICE_IMAGES.pressureWashing,
         price: 3500,
       },
     ],
@@ -316,21 +338,21 @@ const SERVICE_DETAILS = [
         name: "Weekly Maintenance Clean",
         desc: "Per visit",
         details: "Regular weekly maintenance to keep your space consistently clean",
-        imageUrl: SERVICE_IMAGES.maintenance,
+        imageUrl: SERVICE_IMAGES.weeklyMaintenance,
         price: 2000,
       },
       {
         name: "Biweekly Maintenance Clean",
         desc: "Per visit",
         details: "Twice monthly maintenance cleaning service",
-        imageUrl: SERVICE_IMAGES.maintenance,
+        imageUrl: SERVICE_IMAGES.biweeklyMaintenance,
         price: 2500,
       },
       {
         name: "Monthly Full Clean",
         desc: "Per visit",
         details: "Comprehensive monthly deep cleaning to maintain pristine conditions",
-        imageUrl: SERVICE_IMAGES.maintenance,
+        imageUrl: SERVICE_IMAGES.monthlyFullClean,
         price: 4500,
       },
     ],
@@ -554,10 +576,10 @@ export default function BookingPage() {
                               : "perspective(1000px) rotateX(0) rotateY(0) translateZ(0)",
                             transition: hoveredCard !== `${category.category}-${idx}` ? "transform 0.3s ease-out" : "none",
                           }}
-                          className="group/card relative cursor-pointer"
+                          className="group/card relative h-full cursor-pointer"
                         >
-                          <Card className="h-full bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 border border-white/10 hover:border-blue-500/50 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20">
-                            <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+                          <Card className="h-full flex flex-col overflow-hidden border border-white/10 bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20">
+                            <div className="relative h-56 shrink-0 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
                               <img
                                 src={service.imageUrl || FALLBACK_IMAGE}
                                 alt={service.name}
@@ -565,32 +587,32 @@ export default function BookingPage() {
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
                                 }}
-                                className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-300"
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-110"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                               <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
-                                <Star className="w-3 h-3 text-yellow-200 fill-yellow-200" />
+                                <Star className="w-3 h-3 fill-yellow-200 text-yellow-200" />
                                 <span className="text-xs font-semibold text-yellow-200">5.0</span>
                               </div>
                             </div>
 
-                            <div className="p-6">
-                              <h3 className="text-lg font-bold text-white mb-2 group-hover/card:text-blue-200 transition-colors">
+                            <div className="flex flex-1 flex-col p-6">
+                              <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover/card:text-blue-200">
                                 {service.name}
                               </h3>
-                              <p className="text-sm text-blue-200/70 mb-4">{service.desc}</p>
-                              <p className="text-xs text-white/60 mb-4 leading-relaxed line-clamp-2">
+                              <p className="mb-4 text-sm text-blue-200/70">{service.desc}</p>
+                              <p className="mb-4 text-xs leading-relaxed text-white/60 line-clamp-2">
                                 {service.details}
                               </p>
-                              <div className="flex items-center justify-between">
+                              <div className="mt-auto flex items-center justify-between">
                                 <div>
                                   <p className="text-xs text-white/50">Starting from</p>
                                   <p className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
                                     KSh {service.price.toLocaleString()}
                                   </p>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center group-hover/card:scale-110 transition-transform">
-                                  <ArrowRight className="w-5 h-5 text-white" />
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-transform group-hover/card:scale-110">
+                                  <ArrowRight className="h-5 w-5 text-white" />
                                 </div>
                               </div>
                             </div>
