@@ -83,6 +83,7 @@ export const createBooking = async (req: any, res: Response) => {
       fullName, 
       phone, 
       email, 
+      preferredContactMethod,
       address, 
       serviceType, 
       servicePrice,
@@ -107,6 +108,7 @@ export const createBooking = async (req: any, res: Response) => {
       fullName,
       phone,
       email,
+      preferredContactMethod: preferredContactMethod || 'email',
       address,
       serviceType,
       servicePrice,
@@ -131,7 +133,11 @@ export const createBooking = async (req: any, res: Response) => {
       } catch (e: any) {
         console.error("Admin email failed:", e && e.message ? e.message : e);
       }
-      if (savedBooking.email) {
+
+      // Client email: skip when client chose WhatsApp and no email was provided
+      if (savedBooking.preferredContactMethod === 'whatsapp' && !savedBooking.email) {
+        console.log("Client chose WhatsApp as contact method — skipping client email send");
+      } else if (savedBooking.email) {
         try {
           await sendClientConfirmationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking);
         } catch (e: any) {

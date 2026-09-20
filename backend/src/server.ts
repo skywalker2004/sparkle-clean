@@ -9,6 +9,7 @@ import clientRoutes from "./routes/client.routes";
 import invoiceRoutes from "./routes/invoice.routes";
 import scheduleRoutes from "./routes/schedule.routes";
 import bookingRoutes from "./routes/booking.routes";
+import imageRoutes from "./routes/image.routes";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/schedule", scheduleRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/images", imageRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: `Route ${req.method} ${req.path} not found` });
