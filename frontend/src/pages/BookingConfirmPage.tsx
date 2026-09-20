@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle2, Phone } from "lucide-react";
+import { formatWhatsAppNumber } from "@/lib/utils";
+
+const WA_NUMBER = "254768362805";
 
 interface BookingData {
   name: string;
@@ -11,6 +14,7 @@ interface BookingData {
   date: string;
   time: string;
   totalPrice: number;
+  preferredContactMethod?: "email" | "whatsapp";
 }
 
 export default function BookingConfirmPage() {
@@ -130,6 +134,19 @@ export default function BookingConfirmPage() {
               Thank you, <strong>{bookingData.name}</strong>! We have received your booking. Our team will call you on <strong>{bookingData.phone}</strong> within <strong>2 hours</strong> to confirm your appointment and provide any additional details.
             </p>
           </div>
+
+          {bookingData.preferredContactMethod === "whatsapp" && (
+            <div className="mb-6 text-center">
+              <a
+                href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi, I just booked ${bookingRef} and would like to confirm details.`)}`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-5 py-3 rounded-lg shadow-lg"
+              >
+                💬 Message us on WhatsApp now to speed up confirmation
+              </a>
+            </div>
+          )}
 
           {/* Contact Information */}
           <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mb-8 text-center">
