@@ -10,7 +10,7 @@ import { Phone, MapPin, CalendarIcon, Loader2, CheckCircle2, XCircle, Clock } fr
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { formatKES } from "@/lib/utils";
+import { formatKES, formatWhatsAppNumber } from "@/lib/utils";
 
 function StatusBadge({ status }: { status: Booking["status"] }) {
   const variants: Record<Booking["status"], string> = {
@@ -126,6 +126,7 @@ export default function BookingsAdminPage() {
                     <th className="pb-3 pr-4 font-medium hidden md:table-cell">Service</th>
                     <th className="pb-3 pr-4 font-medium hidden lg:table-cell">Date & Time</th>
                     <th className="pb-3 pr-4 font-medium">Amount</th>
+                    <th className="pb-3 pr-4 font-medium">Contact</th>
                     <th className="pb-3 pr-4 font-medium">Status</th>
                     <th className="pb-3 pr-4 font-medium">Actions Taken</th>
                     <th className="pb-3 font-medium">Actions</th>
@@ -163,6 +164,13 @@ export default function BookingsAdminPage() {
                       </td>
                       <td className="py-3 pr-4 font-medium">{formatKES(booking.totalPrice)}</td>
                       <td className="py-3 pr-4">
+                        {booking.preferredContactMethod === "whatsapp" ? (
+                          <Badge variant="outline" className="bg-emerald-100 text-emerald-800">💬 WhatsApp</Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-blue-100 text-blue-800">📧 Email</Badge>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4">
                         <StatusBadge status={booking.status} />
                         {confirmedInfo[booking.id] && (
                           <p className="text-xs text-green-600 mt-1">{confirmedInfo[booking.id]}</p>
@@ -172,37 +180,49 @@ export default function BookingsAdminPage() {
                         <ActionsTakenBadge booking={booking} />
                       </td>
                       <td className="py-3">
-                        {booking.status === "pending" && !booking.convertedToClient && (
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              disabled={confirmingId === booking.id}
-                              onClick={() => handleConfirm(booking)}
+                        <div className="flex gap-2 items-center">
+                          {booking.preferredContactMethod === "whatsapp" && (
+                            <a
+                              href={`https://wa.me/${formatWhatsAppNumber(booking.phone)}?text=${encodeURIComponent(`Hi, regarding your booking ${booking.bookingRef}`)}`}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="text-sm px-2 py-1 rounded bg-emerald-500 text-white"
                             >
-                              {confirmingId === booking.id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : (
-                                <>
-                                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Confirm
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              disabled={cancellingId === booking.id}
-                              onClick={() => handleCancel(booking)}
-                            >
-                              {cancellingId === booking.id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : (
-                                <>
-                                  <XCircle className="w-3.5 h-3.5 mr-1" /> Cancel
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        )}
+                              💬 Message on WhatsApp
+                            </a>
+                          )}
+                          {booking.status === "pending" && !booking.convertedToClient && (
+                            <>
+                              <Button
+                                size="sm"
+                                disabled={confirmingId === booking.id}
+                                onClick={() => handleConfirm(booking)}
+                              >
+                                {confirmingId === booking.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <>
+                                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Confirm
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={cancellingId === booking.id}
+                                onClick={() => handleCancel(booking)}
+                              >
+                                {cancellingId === booking.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <>
+                                    <XCircle className="w-3.5 h-3.5 mr-1" /> Cancel
+                                  </>
+                                )}
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </motion.tr>
                   ))}

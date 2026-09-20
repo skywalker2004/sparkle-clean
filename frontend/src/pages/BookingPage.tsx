@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -50,40 +50,7 @@ const BOOKING_FREQUENCIES = [
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=85&auto=format&fit=crop";
 
-const SERVICE_IMAGES = {
-  standardHouse: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=85&auto=format&fit=crop",
-  deepHouse: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&q=85&auto=format&fit=crop",
-  moveIn: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=85&auto=format&fit=crop",
-  moveOut: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=85&auto=format&fit=crop",
-  postConstruction: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=85&auto=format&fit=crop",
-  afterParty: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=85&auto=format&fit=crop",
-  seasonal: "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=800&q=85&auto=format&fit=crop",
-  kitchen: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=85&auto=format&fit=crop",
-  bathroom: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=85&auto=format&fit=crop",
-  bedroom: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=85&auto=format&fit=crop",
-  livingRoom: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&q=85&auto=format&fit=crop",
-  carpet: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&q=85&auto=format&fit=crop",
-  sofaTwo: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=85&auto=format&fit=crop",
-  sofaThree: "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=85&auto=format&fit=crop",
-  mattressSingle: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=85&auto=format&fit=crop",
-  mattressDouble: "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&q=85&auto=format&fit=crop",
-  rug: "https://images.unsplash.com/photo-1587502537745-84b86da1204f?w=800&q=85&auto=format&fit=crop",
-  officeSmall: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=85&auto=format&fit=crop",
-  officeMedium: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=85&auto=format&fit=crop",
-  officeLarge: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=85&auto=format&fit=crop",
-  retail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=85&auto=format&fit=crop",
-  restaurant: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=85&auto=format&fit=crop",
-  windowInterior: "https://images.unsplash.com/photo-1527515862978-031310ffb3d6?w=800&q=85&auto=format&fit=crop",
-  windowInteriorExterior: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&q=85&auto=format&fit=crop",
-  ceiling: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=800&q=85&auto=format&fit=crop",
-  tile: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800&q=85&auto=format&fit=crop",
-  fridge: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=85&auto=format&fit=crop",
-  oven: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=85&auto=format&fit=crop",
-  pressureWashing: "https://images.unsplash.com/photo-1595535373192-1fa3ff775d24?w=800&q=85&auto=format&fit=crop",
-  weeklyMaintenance: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&q=85&auto=format&fit=crop",
-  biweeklyMaintenance: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=85&auto=format&fit=crop",
-  monthlyFullClean: "https://images.unsplash.com/photo-1615873968403-89e068629265?w=800&q=85&auto=format&fit=crop",
-};
+// Image URLs are now resolved via backend Unsplash proxy using per-service keywords.
 
 const SERVICE_DETAILS = [
   {
@@ -95,49 +62,49 @@ const SERVICE_DETAILS = [
         name: "Standard House Clean",
         desc: "Perfect for regular homes",
         details: "Comprehensive cleaning of 2-3 bedroom house including dusting, vacuuming, mopping, bathroom cleaning, and kitchen tidying",
-        imageUrl: SERVICE_IMAGES.standardHouse,
+        imageKeyword: "standard house interior cleaning",
         price: 2500,
       },
       {
         name: "Deep House Clean",
         desc: "Thorough top-to-bottom cleaning",
         details: "Intensive deep cleaning including baseboards, light fixtures, inside cabinets, deep carpet shampooing, and tile grout cleaning",
-        imageUrl: SERVICE_IMAGES.deepHouse,
+        imageKeyword: "deep house deep cleaning",
         price: 5500,
       },
       {
         name: "Move-In Cleaning",
         desc: "Before you settle in",
         details: "Complete property sanitization before moving in, including wall cleaning, cabinet sanitization, and deep appliance cleaning",
-        imageUrl: SERVICE_IMAGES.moveIn,
+        imageKeyword: "move in cleaning empty apartment",
         price: 7000,
       },
       {
         name: "Move-Out Cleaning",
         desc: "Leave it spotless",
         details: "Full property restoration cleaning after vacating, ensuring all surfaces are impeccable for the next tenant",
-        imageUrl: SERVICE_IMAGES.moveOut,
+        imageKeyword: "move out cleaning empty property",
         price: 7000,
       },
       {
         name: "Post-Construction Clean",
         desc: "Remove all dust and debris",
         details: "Specialized cleaning to remove construction dust, debris, and polish all surfaces for final finishing",
-        imageUrl: SERVICE_IMAGES.postConstruction,
+        imageKeyword: "post construction cleanup site",
         price: 12000,
       },
       {
         name: "After-Party Clean",
         desc: "Party cleanup services",
         details: "Professional post-event cleanup including floor cleaning, trash removal, and full restoration",
-        imageUrl: SERVICE_IMAGES.afterParty,
+        imageKeyword: "post party cleanup floor trash",
         price: 4500,
       },
       {
         name: "Spring/Seasonal Clean",
         desc: "Refresh your home seasonally",
         details: "Full seasonal refresh including window cleaning, ceiling fans, and deep carpet cleaning",
-        imageUrl: SERVICE_IMAGES.seasonal,
+        imageKeyword: "seasonal deep home cleaning",
         price: 6000,
       },
     ],
@@ -151,14 +118,14 @@ const SERVICE_DETAILS = [
         name: "Kitchen Deep Clean",
         desc: "Professional kitchen cleaning",
         details: "Deep cleaning of oven interior, cabinet degreasing, appliance exterior, and tile grout restoration",
-        imageUrl: SERVICE_IMAGES.kitchen,
+        imageKeyword: "clean kitchen countertop interior",
         price: 2000,
       },
       {
         name: "Bathroom Deep Clean",
         desc: "Per bathroom",
         details: "Tile scrubbing, fixture polishing, grout cleaning, and disinfection of all surfaces",
-        imageUrl: SERVICE_IMAGES.bathroom,
+        imageKeyword: "deep bathroom tile grout cleaning",
         price: 1500,
         perUnit: true,
       },
@@ -166,7 +133,7 @@ const SERVICE_DETAILS = [
         name: "Bedroom Clean",
         desc: "Per bedroom",
         details: "Dusting, vacuuming, bed cleaning, and comprehensive surface disinfection",
-        imageUrl: SERVICE_IMAGES.bedroom,
+        imageKeyword: "bedroom tidy bed made clean",
         price: 1200,
         perUnit: true,
       },
@@ -174,7 +141,7 @@ const SERVICE_DETAILS = [
         name: "Living Room Clean",
         desc: "Full living room refresh",
         details: "Complete living area cleaning including upholstery care, floor treatment, and dust removal",
-        imageUrl: SERVICE_IMAGES.livingRoom,
+        imageKeyword: "living room upholstery clean sofa",
         price: 1500,
       },
     ],
@@ -188,7 +155,7 @@ const SERVICE_DETAILS = [
         name: "Carpet Cleaning",
         desc: "Per room professional cleaning",
         details: "Deep carpet shampooing with steam extraction and deodorization treatment",
-        imageUrl: SERVICE_IMAGES.carpet,
+        imageKeyword: "vacuum cleaning carpet room",
         price: 1800,
         perUnit: true,
       },
@@ -196,35 +163,35 @@ const SERVICE_DETAILS = [
         name: "Sofa/Couch Cleaning (2-seater)",
         desc: "2-seater couch",
         details: "Professional upholstery cleaning with fabric protection treatment",
-        imageUrl: SERVICE_IMAGES.sofaTwo,
+        imageKeyword: "two seater sofa upholstery cleaning",
         price: 2500,
       },
       {
         name: "Sofa/Couch Cleaning (3-seater)",
         desc: "3-seater couch",
         details: "Deep upholstery restoration including stain treatment and deodorization",
-        imageUrl: SERVICE_IMAGES.sofaThree,
+        imageKeyword: "three seater couch cleaning",
         price: 3500,
       },
       {
         name: "Mattress Cleaning (single)",
         desc: "Single mattress",
         details: "Dust mite elimination, stain removal, and complete sanitization",
-        imageUrl: SERVICE_IMAGES.mattressSingle,
+        imageKeyword: "single mattress deep clean",
         price: 1500,
       },
       {
         name: "Mattress Cleaning (double/king)",
         desc: "Double/king mattress",
         details: "Professional deep cleaning with allergen and dust removal",
-        imageUrl: SERVICE_IMAGES.mattressDouble,
+        imageKeyword: "double mattress deep cleaning",
         price: 2000,
       },
       {
         name: "Rug Cleaning",
         desc: "Standard rug",
         details: "Specialized rug cleaning with fabric-specific treatment",
-        imageUrl: SERVICE_IMAGES.rug,
+        imageKeyword: "rug cleaning area rug carpet",
         price: 1200,
       },
     ],
@@ -238,35 +205,35 @@ const SERVICE_DETAILS = [
         name: "Office Clean (small, up to 50sqm)",
         desc: "Small office space",
         details: "Desk cleaning, floor care, bathroom sanitation, and trash removal",
-        imageUrl: SERVICE_IMAGES.officeSmall,
+        imageKeyword: "small office interior cleaning desk",
         price: 4000,
       },
       {
         name: "Office Clean (medium, 50-150sqm)",
         desc: "Medium office space",
         details: "Comprehensive office cleaning including conference rooms and common areas",
-        imageUrl: SERVICE_IMAGES.officeMedium,
+        imageKeyword: "office workspace cleaning medium sized",
         price: 8000,
       },
       {
         name: "Office Clean (large, 150sqm+)",
         desc: "Large office space",
         details: "Full-scale office sanitization with specialized equipment and multiple cleaners",
-        imageUrl: SERVICE_IMAGES.officeLarge,
+        imageKeyword: "commercial office cleaning large space",
         price: 15000,
       },
       {
         name: "Retail Shop Clean",
         desc: "Retail space cleaning",
         details: "Display cleaning, floor care, and customer area sanitization",
-        imageUrl: SERVICE_IMAGES.retail,
+        imageKeyword: "retail shop floor cleaning display",
         price: 5000,
       },
       {
         name: "Restaurant/Café Clean",
         desc: "Food service establishment",
         details: "Health-code compliant cleaning including kitchen deep clean and dining area",
-        imageUrl: SERVICE_IMAGES.restaurant,
+        imageKeyword: "restaurant kitchen dining area clean",
         price: 9000,
       },
     ],
@@ -280,7 +247,7 @@ const SERVICE_DETAILS = [
         name: "Window Cleaning (interior)",
         desc: "Per window",
         details: "Professional window glass cleaning with streak-free finish",
-        imageUrl: SERVICE_IMAGES.windowInterior,
+        imageKeyword: "cleaning window glass indoor",
         price: 150,
         perUnit: true,
       },
@@ -288,7 +255,7 @@ const SERVICE_DETAILS = [
         name: "Window Cleaning (interior + exterior)",
         desc: "Per window",
         details: "Complete window cleaning including frames and sills",
-        imageUrl: SERVICE_IMAGES.windowInteriorExterior,
+        imageKeyword: "window washer exterior building",
         price: 250,
         perUnit: true,
       },
@@ -296,35 +263,35 @@ const SERVICE_DETAILS = [
         name: "Ceiling and Wall Wash",
         desc: "Full cleaning",
         details: "Spider web removal, stain treatment, and wall restoration",
-        imageUrl: SERVICE_IMAGES.ceiling,
+        imageKeyword: "white ceiling wall interior clean",
         price: 3000,
       },
       {
         name: "Tile and Grout Deep Clean",
         desc: "Complete tile cleaning",
         details: "Professional grout restoration and tile polishing with anti-bacterial treatment",
-        imageUrl: SERVICE_IMAGES.tile,
+        imageKeyword: "tile grout deep cleaning floor",
         price: 2500,
       },
       {
         name: "Fridge/Freezer Clean",
         desc: "Deep appliance clean",
         details: "Interior and exterior cleaning with sanitization and deodorization",
-        imageUrl: SERVICE_IMAGES.fridge,
+        imageKeyword: "clean fridge interior appliance",
         price: 1000,
       },
       {
         name: "Oven Deep Clean",
         desc: "Complete oven cleaning",
         details: "Interior and exterior oven restoration with chemical-free methods",
-        imageUrl: SERVICE_IMAGES.oven,
+        imageKeyword: "clean oven interior kitchen appliance",
         price: 1500,
       },
       {
         name: "Pressure Washing",
         desc: "Per area",
         details: "High-pressure cleaning for driveways, patios, and exterior surfaces",
-        imageUrl: SERVICE_IMAGES.pressureWashing,
+        imageKeyword: "pressure washing driveway concrete",
         price: 3500,
       },
     ],
@@ -338,21 +305,21 @@ const SERVICE_DETAILS = [
         name: "Weekly Maintenance Clean",
         desc: "Per visit",
         details: "Regular weekly maintenance to keep your space consistently clean",
-        imageUrl: SERVICE_IMAGES.weeklyMaintenance,
+        imageKeyword: "weekly home maintenance cleaning visit",
         price: 2000,
       },
       {
         name: "Biweekly Maintenance Clean",
         desc: "Per visit",
         details: "Twice monthly maintenance cleaning service",
-        imageUrl: SERVICE_IMAGES.biweeklyMaintenance,
+        imageKeyword: "biweekly home cleaning service visit",
         price: 2500,
       },
       {
         name: "Monthly Full Clean",
         desc: "Per visit",
         details: "Comprehensive monthly deep cleaning to maintain pristine conditions",
-        imageUrl: SERVICE_IMAGES.monthlyFullClean,
+        imageKeyword: "monthly full deep cleaning service",
         price: 4500,
       },
     ],
@@ -375,7 +342,14 @@ const bookingSchema = z.object({
   preferredDate: z.string().min(1, "Please select your preferred date"),
   preferredTime: z.enum(PREFERRED_TIMES, { message: "Please select your preferred time" }),
   frequency: z.enum(BOOKING_FREQUENCIES, { message: "Please select booking frequency" }),
+  preferredContactMethod: z.enum(["email", "whatsapp"]),
   notes: z.string().optional(),
+}).superRefine((val, ctx) => {
+  if (val.preferredContactMethod === "email") {
+    if (!val.email || (typeof val.email === "string" && val.email.trim() === "")) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Please enter your email address", path: ["email"] });
+    }
+  }
 });
 
 type BookingForm = z.infer<typeof bookingSchema>;
@@ -384,7 +358,7 @@ interface ServiceItem {
   name: string;
   desc: string;
   details: string;
-  imageUrl: string;
+  imageKeyword: string;
   price: number;
   perUnit?: boolean;
 }
@@ -410,6 +384,54 @@ export default function BookingPage() {
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
+  function ServiceImage({ keyword, alt }: { keyword: string; alt: string }) {
+    const [resolved, setResolved] = useState<{ imageUrl: string; photographerName?: string | null; photographerLink?: string | null } | null>(null);
+    const [loadingImage, setLoadingImage] = useState(true);
+
+    React.useEffect(() => {
+      let cancelled = false;
+      const fetchImage = async () => {
+        setLoadingImage(true);
+        try {
+          const res = await fetch(`http://localhost:5000/api/images/service-image?keyword=${encodeURIComponent(keyword)}`);
+          if (!res.ok) throw new Error('image fetch failed');
+          const data = await res.json();
+          if (!cancelled) setResolved({ imageUrl: data.imageUrl, photographerName: data.photographerName, photographerLink: data.photographerLink });
+        } catch (e) {
+          if (!cancelled) setResolved({ imageUrl: FALLBACK_IMAGE, photographerName: null, photographerLink: null });
+        } finally {
+          if (!cancelled) setLoadingImage(false);
+        }
+      };
+      fetchImage();
+      return () => { cancelled = true; };
+    }, [keyword]);
+
+    return (
+      <div className="relative h-56 shrink-0 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+        {loadingImage ? (
+          <div className="h-full w-full bg-slate-800 animate-pulse" />
+        ) : (
+          <>
+            <img
+              src={resolved?.imageUrl || FALLBACK_IMAGE}
+              alt={alt}
+              loading="lazy"
+              onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-110"
+            />
+            {resolved?.photographerName && (
+              <div className="absolute left-3 bottom-3 text-xs text-white/60 bg-black/30 px-2 py-1 rounded">
+                Photo: <a href={resolved.photographerLink || '#'} className="underline" target="_blank" rel="noreferrer noopener">{resolved.photographerName}</a> / Unsplash
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          </>
+        )}
+      </div>
+    );
+  }
+
   const {
     register,
     handleSubmit,
@@ -427,11 +449,14 @@ export default function BookingPage() {
       propertyType: "" as BookingForm["propertyType"],
       propertySize: "" as BookingForm["propertySize"],
       preferredDate: "",
-      preferredTime: "" as BookingForm["preferredTime"],
-      frequency: "" as BookingForm["frequency"],
-      notes: "",
+        preferredTime: "" as BookingForm["preferredTime"],
+        frequency: "" as BookingForm["frequency"],
+        preferredContactMethod: "email",
+        notes: "",
     },
   });
+
+  const preferredContactMethod = watch("preferredContactMethod");
 
   const totalPrice = selectedService ? selectedService.price * quantity : 0;
   const watchedValues = watch(requiredFields);
@@ -485,6 +510,7 @@ export default function BookingPage() {
         preferredDate: data.preferredDate,
         preferredTime: data.preferredTime,
         frequency: data.frequency,
+        preferredContactMethod: data.preferredContactMethod,
         propertyType: data.propertyType,
         propertySize: data.propertySize,
         notes: data.notes || undefined,
@@ -500,6 +526,8 @@ export default function BookingPage() {
         date: data.preferredDate,
         time: data.preferredTime,
         totalPrice,
+        preferredContactMethod: data.preferredContactMethod,
+        bookingRef: result.bookingRef,
       }));
 
       toast.success("Booking submitted! Redirecting...");
@@ -567,6 +595,9 @@ export default function BookingPage() {
                           onMouseLeave={handleMouseLeave}
                           onClick={() => {
                             setSelectedService(service);
+                            try {
+                              localStorage.setItem("sparkle_selected_services", JSON.stringify([{ name: service.name, price: service.price }]));
+                            } catch {}
                             setQuantity(1);
                             setShowForm(true);
                           }}
@@ -579,21 +610,10 @@ export default function BookingPage() {
                           className="group/card relative h-full cursor-pointer"
                         >
                           <Card className="h-full flex flex-col overflow-hidden border border-white/10 bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20">
-                            <div className="relative h-56 shrink-0 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
-                              <img
-                                src={service.imageUrl || FALLBACK_IMAGE}
-                                alt={service.name}
-                                loading="lazy"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
-                                }}
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                              <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-yellow-200 text-yellow-200" />
-                                <span className="text-xs font-semibold text-yellow-200">5.0</span>
-                              </div>
+                            <ServiceImage keyword={service.imageKeyword} alt={service.name} />
+                            <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-200 text-yellow-200" />
+                              <span className="text-xs font-semibold text-yellow-200">5.0</span>
                             </div>
 
                             <div className="flex flex-1 flex-col p-6">
@@ -670,14 +690,58 @@ export default function BookingPage() {
                       {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
                     </div>
                     <div>
-                      <Label className="text-white/90 font-semibold">Email (Optional)</Label>
-                      <Input
-                        type="email"
-                        placeholder="youremail@example.com"
-                        {...register("email")}
-                        className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                      <Label className="text-white/90 font-semibold">Preferred Contact Method *</Label>
+                      <Controller
+                        name="preferredContactMethod"
+                        control={control}
+                        render={({ field }) => (
+                          <div role="radiogroup" aria-label="Preferred contact method" className="mt-2 flex gap-3">
+                            <button
+                              type="button"
+                              role="radio"
+                              aria-checked={field.value === "email"}
+                              onClick={() => field.onChange("email")}
+                              className={`w-1/2 p-3 rounded-lg text-left transition-shadow ${field.value === "email" ? "border-2 border-blue-500 bg-white/5" : "border border-white/10 bg-white/2"}`}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="font-semibold">📧 Email</div>
+                                  <div className="text-xs text-white/60">We'll email your booking confirmation</div>
+                                </div>
+                                {field.value === "email" && <div className="text-blue-400">✓</div>}
+                              </div>
+                            </button>
+                            <button
+                              type="button"
+                              role="radio"
+                              aria-checked={field.value === "whatsapp"}
+                              onClick={() => field.onChange("whatsapp")}
+                              className={`w-1/2 p-3 rounded-lg text-left transition-shadow ${field.value === "whatsapp" ? "border-2 border-emerald-500 bg-white/5" : "border border-white/10 bg-white/2"}`}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="font-semibold">💬 WhatsApp</div>
+                                  <div className="text-xs text-white/60">We'll message you on WhatsApp instantly</div>
+                                </div>
+                                {field.value === "whatsapp" && <div className="text-emerald-400">✓</div>}
+                              </div>
+                            </button>
+                          </div>
+                        )}
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-white/90 font-semibold">{preferredContactMethod === "whatsapp" ? "Email Address (optional)" : "Email Address *"}</Label>
+                    <Input
+                      type="email"
+                      placeholder="youremail@example.com"
+                      {...register("email")}
+                      className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
+                    />
+                    {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+                  </div>
                   </div>
 
                   <div>
