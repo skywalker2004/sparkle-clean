@@ -16,6 +16,7 @@ export interface IBooking extends mongoose.Document {
   propertyType: 'Apartment' | 'Maisonette' | 'Bungalow' | 'Villa' | 'Office' | 'Townhouse' | 'Studio' | 'Other';
   propertySize: 'Studio / Bedsitter' | '1 Bedroom' | '2 Bedrooms' | '3 Bedrooms' | '4 Bedrooms' | '5+ Bedrooms' | 'Large Commercial';
   notes?: string;
+  preferredContactMethod?: 'email' | 'whatsapp';
   status: 'pending' | 'confirmed' | 'cancelled';
   clientId?: string | null;
   invoiceId?: string | null;
@@ -29,6 +30,7 @@ const BookingSchema: Schema = new Schema(
     fullName: { type: String, required: true },
     phone: { type: String, required: true },
     email: { type: String },
+    preferredContactMethod: { type: String, enum: ['email', 'whatsapp'], default: 'email' },
     address: { type: String, required: true },
     serviceType: { type: String, required: true },
     servicePrice: { type: Number, required: true, min: 0 },
