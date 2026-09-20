@@ -85,6 +85,11 @@ function getFrequency(booking: any): string {
 
 // ── CLIENT EMAIL ──────────────────────────────────────────────
 export async function sendClientConfirmationEmail(booking: any): Promise<void> {
+  if (booking.preferredContactMethod === 'whatsapp' && !booking.email) {
+    console.log("Client chose WhatsApp as contact method — skipping email send");
+    return;
+  }
+
   if (!booking.email) {
     console.log("⚠️ No client email provided — skipping client email");
     return;
@@ -341,6 +346,8 @@ export async function sendAdminNotificationEmail(booking: any): Promise<void> {
                     <td style="padding:8px 0;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:13px;">Phone</td>
                     <td style="padding:8px 0;border-bottom:1px solid #f1f5f9;">
                       <a href="tel:${booking.phone}" style="background:#10b981;color:#ffffff;font-size:13px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none;display:inline-block;">📞 Call ${booking.phone}</a>
+                      &nbsp;&nbsp;
+                      ${booking.preferredContactMethod === 'whatsapp' ? `<span style="background:#10b981;color:#ffffff;font-size:12px;padding:6px 8px;border-radius:6px;display:inline-block;margin-left:8px;">💬 WhatsApp</span>` : `<span style="background:#3b82f6;color:#ffffff;font-size:12px;padding:6px 8px;border-radius:6px;display:inline-block;margin-left:8px;">📧 Email</span>`}
                     </td>
                   </tr>
                   <tr>

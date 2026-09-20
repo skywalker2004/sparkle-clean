@@ -30,6 +30,8 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
   return <Outlet />;
 }
 
+import WhatsAppFloatButton from "./WhatsAppFloatButton";
+
 export function PublicBookingRoute() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -46,5 +48,10 @@ export function PublicBookingRoute() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <WhatsAppFloatButton />
+    </>
+  );
 }
