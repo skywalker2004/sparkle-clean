@@ -87,6 +87,7 @@ export interface Booking {
   propertyType: string;
   propertySize: string;
   notes?: string;
+  preferredContactMethod?: "email" | "whatsapp";
   status: "pending" | "confirmed" | "cancelled";
   clientId?: string | null;
   invoiceId?: string | null;
