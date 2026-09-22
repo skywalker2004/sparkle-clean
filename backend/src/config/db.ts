@@ -11,10 +11,12 @@ const connectDB = async () => {
     }
     await mongoose.connect(mongoUri);
     console.log('✅ MongoDB Connected Successfully');
-  } catch (error: unknown) {  // FIXED: Use 'unknown' for better type safety (strict mode)
+    return true;
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('❌ MongoDB Connection Error:', message);
-    process.exit(1);
+    console.warn('⚠️ Continuing without MongoDB; image and booking routes will use fallback behavior until the database is reachable.');
+    return false;
   }
 };
 
