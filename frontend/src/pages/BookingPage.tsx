@@ -47,8 +47,36 @@ const BOOKING_FREQUENCIES = [
   "Monthly",
 ] as const;
 
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=85&auto=format&fit=crop";
+const FALLBACK_IMAGES = {
+  residential: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=85&auto=format&fit=crop",
+  deep: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=800&q=85&auto=format&fit=crop",
+  upholstery: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=85&auto=format&fit=crop",
+  commercial: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=85&auto=format&fit=crop",
+  event: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&q=85&auto=format&fit=crop",
+  general: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=85&auto=format&fit=crop",
+} as const;
+
+function getFallbackImageForCategory(category: string) {
+  const normalized = category.toLowerCase();
+
+  if (/residential|house|apartment|kitchen|bathroom|bedroom|living room|seasonal|move|deep/.test(normalized)) {
+    return FALLBACK_IMAGES.residential;
+  }
+
+  if (/carpet|upholstery|sofa|couch|mattress|rug/.test(normalized)) {
+    return FALLBACK_IMAGES.upholstery;
+  }
+
+  if (/construction|commercial|office|retail|warehouse/.test(normalized)) {
+    return FALLBACK_IMAGES.commercial;
+  }
+
+  if (/party|event/.test(normalized)) {
+    return FALLBACK_IMAGES.event;
+  }
+
+  return FALLBACK_IMAGES.general;
+}
 
 // Image URLs are now resolved via backend Unsplash proxy using per-service keywords.
 
@@ -384,9 +412,10 @@ export default function BookingPage() {
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-  function ServiceImage({ keyword, alt }: { keyword: string; alt: string }) {
+  function ServiceImage({ keyword, alt, category }: { keyword: string; alt: string; category: string }) {
     const [resolved, setResolved] = useState<{ imageUrl: string; photographerName?: string | null; photographerLink?: string | null } | null>(null);
     const [loadingImage, setLoadingImage] = useState(true);
+    const fallbackImage = getFallbackImageForCategory(category);
 
     React.useEffect(() => {
       let cancelled = false;
@@ -394,18 +423,19 @@ export default function BookingPage() {
         setLoadingImage(true);
         try {
           const res = await fetch(`http://localhost:5000/api/images/service-image?keyword=${encodeURIComponent(keyword)}`);
-          if (!res.ok) throw new Error('image fetch failed');
+          if (!res.ok) throw new Error(`image fetch failed with status ${res.status}`);
           const data = await res.json();
-          if (!cancelled) setResolved({ imageUrl: data.imageUrl, photographerName: data.photographerName, photographerLink: data.photographerLink });
+          if (!cancelled) setResolved({ imageUrl: data.imageUrl || fallbackImage, photographerName: data.photographerName, photographerLink: data.photographerLink });
         } catch (e) {
-          if (!cancelled) setResolved({ imageUrl: FALLBACK_IMAGE, photographerName: null, photographerLink: null });
+          console.error(`Image fetch failed for keyword "${keyword}":`, e);
+          if (!cancelled) setResolved({ imageUrl: fallbackImage, photographerName: null, photographerLink: null });
         } finally {
           if (!cancelled) setLoadingImage(false);
         }
       };
       fetchImage();
       return () => { cancelled = true; };
-    }, [keyword]);
+    }, [keyword, fallbackImage]);
 
     return (
       <div className="relative h-56 shrink-0 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
@@ -414,10 +444,10 @@ export default function BookingPage() {
         ) : (
           <>
             <img
-              src={resolved?.imageUrl || FALLBACK_IMAGE}
+              src={resolved?.imageUrl || fallbackImage}
               alt={alt}
               loading="lazy"
-              onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
+              onError={(e) => { (e.target as HTMLImageElement).src = fallbackImage; }}
               className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-110"
             />
             {resolved?.photographerName && (
@@ -610,7 +640,7 @@ export default function BookingPage() {
                           className="group/card relative h-full cursor-pointer"
                         >
                           <Card className="h-full flex flex-col overflow-hidden border border-white/10 bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20">
-                            <ServiceImage keyword={service.imageKeyword} alt={service.name} />
+                            <ServiceImage keyword={service.imageKeyword} alt={service.name} category={category.category} />
                             <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
                               <Star className="w-3 h-3 fill-yellow-200 text-yellow-200" />
                               <span className="text-xs font-semibold text-yellow-200">5.0</span>
@@ -741,7 +771,6 @@ export default function BookingPage() {
                       className="mt-2 bg-white/5 border-white/20 text-white placeholder:text-white/40"
                     />
                     {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
-                  </div>
                   </div>
 
                   <div>
