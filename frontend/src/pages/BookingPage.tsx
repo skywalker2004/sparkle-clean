@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Phone, CheckCircle2, Star, Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { bookingsApi } from "@/lib/api";
+import ServiceImage from "@/components/ServiceImage";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const PROPERTY_TYPES = [
@@ -412,55 +413,7 @@ export default function BookingPage() {
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-  function ServiceImage({ keyword, alt, category }: { keyword: string; alt: string; category: string }) {
-    const [resolved, setResolved] = useState<{ imageUrl: string; photographerName?: string | null; photographerLink?: string | null } | null>(null);
-    const [loadingImage, setLoadingImage] = useState(true);
-    const fallbackImage = getFallbackImageForCategory(category);
-
-    React.useEffect(() => {
-      let cancelled = false;
-      const fetchImage = async () => {
-        setLoadingImage(true);
-        try {
-          const res = await fetch(`http://localhost:5000/api/images/service-image?keyword=${encodeURIComponent(keyword)}`);
-          if (!res.ok) throw new Error(`image fetch failed with status ${res.status}`);
-          const data = await res.json();
-          if (!cancelled) setResolved({ imageUrl: data.imageUrl || fallbackImage, photographerName: data.photographerName, photographerLink: data.photographerLink });
-        } catch (e) {
-          console.error(`Image fetch failed for keyword "${keyword}":`, e);
-          if (!cancelled) setResolved({ imageUrl: fallbackImage, photographerName: null, photographerLink: null });
-        } finally {
-          if (!cancelled) setLoadingImage(false);
-        }
-      };
-      fetchImage();
-      return () => { cancelled = true; };
-    }, [keyword, fallbackImage]);
-
-    return (
-      <div className="relative h-56 shrink-0 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
-        {loadingImage ? (
-          <div className="h-full w-full bg-slate-800 animate-pulse" />
-        ) : (
-          <>
-            <img
-              src={resolved?.imageUrl || fallbackImage}
-              alt={alt}
-              loading="lazy"
-              onError={(e) => { (e.target as HTMLImageElement).src = fallbackImage; }}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-110"
-            />
-            {resolved?.photographerName && (
-              <div className="absolute left-3 bottom-3 text-xs text-white/60 bg-black/30 px-2 py-1 rounded">
-                Photo: <a href={resolved.photographerLink || '#'} className="underline" target="_blank" rel="noreferrer noopener">{resolved.photographerName}</a> / Unsplash
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          </>
-        )}
-      </div>
-    );
-  }
+  // `ServiceImage` moved to a separate memoized component to avoid remounts
 
   const {
     register,
@@ -619,7 +572,7 @@ export default function BookingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {category.items.map((service, idx) => (
                         <div
-                          key={service.name}
+                          key={service.imageKeyword}
                           onMouseEnter={() => setHoveredCard(`${category.category}-${idx}`)}
                           onMouseMove={(e) => handleMouseMove(e, `${category.category}-${idx}`)}
                           onMouseLeave={handleMouseLeave}
