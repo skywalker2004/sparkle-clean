@@ -27,17 +27,6 @@ const PROPERTY_TYPES = [
 
 // TEMP DEBUG: print service -> imageKeyword mapping to DevTools console
 // (Inserted per debugging checklist: STEP 1). Remove after verification.
-if (typeof window !== "undefined") {
-  try {
-    console.table(
-      SERVICE_DETAILS.flatMap((cat) =>
-        cat.items.map((s) => ({ name: s.name, category: cat.category, imageKeyword: s.imageKeyword }))
-      )
-    );
-  } catch (err) {
-    // swallow in case console.table is not available in some environments
-  }
-}
 
 const PROPERTY_SIZES = [
   "Studio / Bedsitter",
