@@ -108,7 +108,7 @@ export const createBooking = async (req: any, res: Response) => {
       fullName,
       phone,
       email,
-      preferredContactMethod: preferredContactMethod || 'email',
+      preferredContactMethod: preferredContactMethod || 'whatsapp',
       address,
       serviceType,
       servicePrice,

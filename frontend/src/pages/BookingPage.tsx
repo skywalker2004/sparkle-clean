@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Phone, CheckCircle2, Star, Sparkles, ArrowRight } from "lucide-react";
+import { Loader2, Phone, CheckCircle2, Star, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { bookingsApi } from "@/lib/api";
 import ServiceImage from "@/components/ServiceImage";
@@ -469,7 +469,7 @@ export default function BookingPage() {
       preferredDate: "",
         preferredTime: "" as BookingForm["preferredTime"],
         frequency: "" as BookingForm["frequency"],
-        preferredContactMethod: "email",
+        preferredContactMethod: "whatsapp",
         notes: "",
     },
   });
@@ -497,6 +497,17 @@ export default function BookingPage() {
   const handleMouseLeave = () => {
     setRotation({ x: 0, y: 0 });
     setHoveredCard(null);
+  };
+
+  // Back / close navigation: if browser history exists, return to the previous
+  // page; otherwise (direct link / new tab) fall back to the site root ("/"
+  // redirects to /dashboard per App.tsx).
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
   };
 
   const onInvalid = (fieldErrors: typeof errors) => {
@@ -567,12 +578,24 @@ export default function BookingPage() {
 
       <div className="relative z-10">
         <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-b border-blue-500/20 py-4 backdrop-blur-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-blue-300">
-              <Phone className="w-5 h-5 animate-pulse" />
-              <span className="font-semibold">📞 0768 362 805</span>
+          <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleBack}
+                aria-label="Go back"
+                title="Go back"
+                className="inline-flex items-center gap-2 h-11 min-w-11 px-3 rounded-lg border border-white/15 bg-white/5 text-blue-200/90 hover:text-blue-300 hover:bg-white/10 hover:border-blue-500/50 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-semibold">Back</span>
+              </button>
+              <div className="flex items-center gap-2 text-blue-300">
+                <Phone className="w-5 h-5 animate-pulse" />
+                <span className="font-semibold">📞 0768 362 805</span>
+              </div>
             </div>
-            <div className="text-sm text-blue-200">✨ Professional Cleaning Services Across Nairobi</div>
+            <div className="text-sm text-blue-200 hidden sm:block">✨ Professional Cleaning Services Across Nairobi</div>
           </div>
         </div>
 
@@ -724,7 +747,7 @@ export default function BookingPage() {
                               <div className="flex justify-between items-start">
                                 <div>
                                   <div className="font-semibold">📧 Email</div>
-                                  <div className="text-xs text-white/60">We'll email your booking confirmation</div>
+                                  <div className="text-xs text-white/60">We'll send your confirmation to your inbox</div>
                                 </div>
                                 {field.value === "email" && <div className="text-blue-400">✓</div>}
                               </div>
@@ -738,8 +761,8 @@ export default function BookingPage() {
                             >
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <div className="font-semibold">💬 WhatsApp</div>
-                                  <div className="text-xs text-white/60">We'll message you on WhatsApp instantly</div>
+                                  <div className="font-semibold">💬 WhatsApp <span className="text-emerald-400 font-semibold">(Recommended)</span></div>
+                                  <div className="text-xs text-white/60">Get instant updates on your booking</div>
                                 </div>
                                 {field.value === "whatsapp" && <div className="text-emerald-400">✓</div>}
                               </div>

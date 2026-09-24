@@ -30,7 +30,7 @@ const BookingSchema: Schema = new Schema(
     fullName: { type: String, required: true },
     phone: { type: String, required: true },
     email: { type: String },
-    preferredContactMethod: { type: String, enum: ['email', 'whatsapp'], default: 'email' },
+    preferredContactMethod: { type: String, enum: ['email', 'whatsapp'], default: 'whatsapp' },
     address: { type: String, required: true },
     serviceType: { type: String, required: true },
     servicePrice: { type: Number, required: true, min: 0 },

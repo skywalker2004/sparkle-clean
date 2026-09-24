@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, Phone } from "lucide-react";
+import { CheckCircle2, Phone, ArrowLeft } from "lucide-react";
 import { formatWhatsAppNumber } from "@/lib/utils";
 
 const WA_NUMBER = "254768362805";
@@ -41,6 +41,17 @@ export default function BookingConfirmPage() {
     localStorage.removeItem("lastBookingData");
   }, [navigate]);
 
+  // Back / close navigation: if browser history exists, return to the previous
+  // page; otherwise (direct link / new tab) fall back to the site root ("/"
+  // redirects to /dashboard per App.tsx).
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-KE", {
@@ -63,6 +74,18 @@ export default function BookingConfirmPage() {
       </div>
 
       <div className="max-w-2xl mx-auto w-full relative z-10">
+        {/* Back / close navigation */}
+        <button
+          type="button"
+          onClick={handleBack}
+          aria-label="Go back"
+          title="Go back"
+          className="inline-flex items-center gap-2 h-11 min-w-11 px-3 rounded-lg border border-white/15 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 hover:border-blue-500/50 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-semibold">Back</span>
+        </button>
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-2">SparkleClean Kenya</h1>
