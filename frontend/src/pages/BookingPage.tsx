@@ -106,6 +106,7 @@ const SERVICE_DETAILS = [
         desc: "Perfect for regular homes",
         details: "Comprehensive cleaning of 2-3 bedroom house including dusting, vacuuming, mopping, bathroom cleaning, and kitchen tidying",
         imageKeyword: "standard house interior cleaning",
+        localImageKey: "standard-house-clean",
         price: 2500,
       },
       {
@@ -113,6 +114,7 @@ const SERVICE_DETAILS = [
         desc: "Thorough top-to-bottom cleaning",
         details: "Intensive deep cleaning including baseboards, light fixtures, inside cabinets, deep carpet shampooing, and tile grout cleaning",
         imageKeyword: "deep house deep cleaning",
+        localImageKey: "deep-house-clean",
         price: 5500,
       },
       {
@@ -120,6 +122,7 @@ const SERVICE_DETAILS = [
         desc: "Before you settle in",
         details: "Complete property sanitization before moving in, including wall cleaning, cabinet sanitization, and deep appliance cleaning",
         imageKeyword: "move in cleaning empty apartment",
+        localImageKey: "move-in-cleaning",
         price: 7000,
       },
       {
@@ -127,6 +130,7 @@ const SERVICE_DETAILS = [
         desc: "Leave it spotless",
         details: "Full property restoration cleaning after vacating, ensuring all surfaces are impeccable for the next tenant",
         imageKeyword: "move out cleaning empty property",
+        localImageKey: "move-out-cleaning",
         price: 7000,
       },
       {
@@ -134,6 +138,7 @@ const SERVICE_DETAILS = [
         desc: "Remove all dust and debris",
         details: "Specialized cleaning to remove construction dust, debris, and polish all surfaces for final finishing",
         imageKeyword: "post construction cleanup site",
+        localImageKey: "post-construction-clean",
         price: 12000,
       },
       {
@@ -141,6 +146,7 @@ const SERVICE_DETAILS = [
         desc: "Party cleanup services",
         details: "Professional post-event cleanup including floor cleaning, trash removal, and full restoration",
         imageKeyword: "post party cleanup floor trash",
+        localImageKey: "after-party-clean",
         price: 4500,
       },
       {
@@ -148,6 +154,7 @@ const SERVICE_DETAILS = [
         desc: "Refresh your home seasonally",
         details: "Full seasonal refresh including window cleaning, ceiling fans, and deep carpet cleaning",
         imageKeyword: "seasonal deep home cleaning",
+        localImageKey: "spring-seasonal-clean",
         price: 6000,
       },
     ],
@@ -162,6 +169,7 @@ const SERVICE_DETAILS = [
         desc: "Professional kitchen cleaning",
         details: "Deep cleaning of oven interior, cabinet degreasing, appliance exterior, and tile grout restoration",
         imageKeyword: "clean kitchen countertop interior",
+        localImageKey: "kitchen-deep-clean",
         price: 2000,
       },
       {
@@ -169,6 +177,7 @@ const SERVICE_DETAILS = [
         desc: "Per bathroom",
         details: "Tile scrubbing, fixture polishing, grout cleaning, and disinfection of all surfaces",
         imageKeyword: "deep bathroom tile grout cleaning",
+        localImageKey: "bathroom-deep-clean",
         price: 1500,
         perUnit: true,
       },
@@ -177,6 +186,7 @@ const SERVICE_DETAILS = [
         desc: "Per bedroom",
         details: "Dusting, vacuuming, bed cleaning, and comprehensive surface disinfection",
         imageKeyword: "bedroom tidy bed made clean",
+        localImageKey: "bedroom-clean",
         price: 1200,
         perUnit: true,
       },
@@ -185,6 +195,7 @@ const SERVICE_DETAILS = [
         desc: "Full living room refresh",
         details: "Complete living area cleaning including upholstery care, floor treatment, and dust removal",
         imageKeyword: "living room upholstery clean sofa",
+        localImageKey: "living-room-clean",
         price: 1500,
       },
     ],
@@ -199,6 +210,7 @@ const SERVICE_DETAILS = [
         desc: "Per room professional cleaning",
         details: "Deep carpet shampooing with steam extraction and deodorization treatment",
         imageKeyword: "vacuum cleaning carpet room",
+        localImageKey: "carpet-cleaning",
         price: 1800,
         perUnit: true,
       },
@@ -207,6 +219,7 @@ const SERVICE_DETAILS = [
         desc: "2-seater couch",
         details: "Professional upholstery cleaning with fabric protection treatment",
         imageKeyword: "two seater sofa upholstery cleaning",
+        localImageKey: "sofa-couch-cleaning-2-seater",
         price: 2500,
       },
       {
@@ -214,6 +227,7 @@ const SERVICE_DETAILS = [
         desc: "3-seater couch",
         details: "Deep upholstery restoration including stain treatment and deodorization",
         imageKeyword: "three seater couch cleaning",
+        localImageKey: "sofa-couch-cleaning-3-seater",
         price: 3500,
       },
       {
@@ -221,6 +235,7 @@ const SERVICE_DETAILS = [
         desc: "Single mattress",
         details: "Dust mite elimination, stain removal, and complete sanitization",
         imageKeyword: "single mattress deep clean",
+        localImageKey: "mattress-cleaning-single",
         price: 1500,
       },
       {
@@ -228,6 +243,7 @@ const SERVICE_DETAILS = [
         desc: "Double/king mattress",
         details: "Professional deep cleaning with allergen and dust removal",
         imageKeyword: "double mattress deep cleaning",
+        localImageKey: "mattress-cleaning-double-king",
         price: 2000,
       },
       {
@@ -235,6 +251,7 @@ const SERVICE_DETAILS = [
         desc: "Standard rug",
         details: "Specialized rug cleaning with fabric-specific treatment",
         imageKeyword: "rug cleaning area rug carpet",
+        localImageKey: "rug-cleaning",
         price: 1200,
       },
     ],
@@ -249,6 +266,7 @@ const SERVICE_DETAILS = [
         desc: "Small office space",
         details: "Desk cleaning, floor care, bathroom sanitation, and trash removal",
         imageKeyword: "small office interior cleaning desk",
+        localImageKey: "office-clean-small",
         price: 4000,
       },
       {
@@ -256,6 +274,7 @@ const SERVICE_DETAILS = [
         desc: "Medium office space",
         details: "Comprehensive office cleaning including conference rooms and common areas",
         imageKeyword: "office workspace cleaning medium sized",
+        localImageKey: "office-clean-medium",
         price: 8000,
       },
       {
@@ -263,6 +282,7 @@ const SERVICE_DETAILS = [
         desc: "Large office space",
         details: "Full-scale office sanitization with specialized equipment and multiple cleaners",
         imageKeyword: "commercial office cleaning large space",
+        localImageKey: "office-clean-large",
         price: 15000,
       },
       {
@@ -270,6 +290,7 @@ const SERVICE_DETAILS = [
         desc: "Retail space cleaning",
         details: "Display cleaning, floor care, and customer area sanitization",
         imageKeyword: "retail shop floor cleaning display",
+        localImageKey: "retail-shop-clean",
         price: 5000,
       },
       {
@@ -277,6 +298,7 @@ const SERVICE_DETAILS = [
         desc: "Food service establishment",
         details: "Health-code compliant cleaning including kitchen deep clean and dining area",
         imageKeyword: "restaurant kitchen dining area clean",
+        localImageKey: "restaurant-cafe-clean",
         price: 9000,
       },
     ],
@@ -291,6 +313,7 @@ const SERVICE_DETAILS = [
         desc: "Per window",
         details: "Professional window glass cleaning with streak-free finish",
         imageKeyword: "cleaning window glass indoor",
+        localImageKey: "window-cleaning-interior",
         price: 150,
         perUnit: true,
       },
@@ -299,6 +322,7 @@ const SERVICE_DETAILS = [
         desc: "Per window",
         details: "Complete window cleaning including frames and sills",
         imageKeyword: "window washer exterior building",
+        localImageKey: "window-cleaning-interior-exterior",
         price: 250,
         perUnit: true,
       },
@@ -307,6 +331,7 @@ const SERVICE_DETAILS = [
         desc: "Full cleaning",
         details: "Spider web removal, stain treatment, and wall restoration",
         imageKeyword: "white ceiling wall interior clean",
+        localImageKey: "ceiling-and-wall-wash",
         price: 3000,
       },
       {
@@ -314,6 +339,7 @@ const SERVICE_DETAILS = [
         desc: "Complete tile cleaning",
         details: "Professional grout restoration and tile polishing with anti-bacterial treatment",
         imageKeyword: "tile grout deep cleaning floor",
+        localImageKey: "tile-and-grout-deep-clean",
         price: 2500,
       },
       {
@@ -321,6 +347,7 @@ const SERVICE_DETAILS = [
         desc: "Deep appliance clean",
         details: "Interior and exterior cleaning with sanitization and deodorization",
         imageKeyword: "clean fridge interior appliance",
+        localImageKey: "fridge-freezer-clean",
         price: 1000,
       },
       {
@@ -328,6 +355,7 @@ const SERVICE_DETAILS = [
         desc: "Complete oven cleaning",
         details: "Interior and exterior oven restoration with chemical-free methods",
         imageKeyword: "clean oven interior kitchen appliance",
+        localImageKey: "oven-deep-clean",
         price: 1500,
       },
       {
@@ -335,6 +363,7 @@ const SERVICE_DETAILS = [
         desc: "Per area",
         details: "High-pressure cleaning for driveways, patios, and exterior surfaces",
         imageKeyword: "pressure washing driveway concrete",
+        localImageKey: "pressure-washing",
         price: 3500,
       },
     ],
@@ -349,6 +378,7 @@ const SERVICE_DETAILS = [
         desc: "Per visit",
         details: "Regular weekly maintenance to keep your space consistently clean",
         imageKeyword: "weekly home maintenance cleaning visit",
+        localImageKey: "weekly-maintenance-clean",
         price: 2000,
       },
       {
@@ -356,6 +386,7 @@ const SERVICE_DETAILS = [
         desc: "Per visit",
         details: "Twice monthly maintenance cleaning service",
         imageKeyword: "biweekly home cleaning service visit",
+        localImageKey: "biweekly-maintenance-clean",
         price: 2500,
       },
       {
@@ -363,6 +394,7 @@ const SERVICE_DETAILS = [
         desc: "Per visit",
         details: "Comprehensive monthly deep cleaning to maintain pristine conditions",
         imageKeyword: "monthly full deep cleaning service",
+        localImageKey: "monthly-full-clean",
         price: 4500,
       },
     ],
@@ -607,7 +639,7 @@ export default function BookingPage() {
                           className="group/card relative h-full cursor-pointer"
                         >
                           <Card className="h-full flex flex-col overflow-hidden border border-white/10 bg-gradient-to-br from-white/5 via-white/[0.02] to-white/0 transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20">
-                            <ServiceImage keyword={service.imageKeyword} alt={service.name} category={category.category} />
+                            <ServiceImage service={service} />
                             <div className="absolute top-3 right-3 bg-yellow-500/90 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1">
                               <Star className="w-3 h-3 fill-yellow-200 text-yellow-200" />
                               <span className="text-xs font-semibold text-yellow-200">5.0</span>
