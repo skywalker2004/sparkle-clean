@@ -31,6 +31,7 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
 }
 
 import WhatsAppFloatButton from "./WhatsAppFloatButton";
+import Footer from "./Footer";
 
 export function PublicBookingRoute() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -52,6 +53,7 @@ export function PublicBookingRoute() {
     <>
       <Outlet />
       <WhatsAppFloatButton />
+      <Footer />
     </>
   );
 }
