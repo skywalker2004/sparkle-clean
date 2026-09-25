@@ -98,9 +98,6 @@ function AppSidebar() {
 function TopNavbar() {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
-  // #region agent log
-  fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H4',location:'frontend/src/components/DashboardLayout.tsx:103',message:'TopNavbar theme context snapshot',data:{theme:theme ?? null,hasUser:!!user},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
 
   return (
     <header className="h-14 flex items-center border-b border-border px-4 glass sticky top-0 z-30">
@@ -148,14 +145,8 @@ function TopNavbar() {
 export default function DashboardLayout() {
   const { isAuthenticated, isLoading } = useAuth();
   const routeLocation = useLocation();
-  // #region agent log
-  fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H1_H3',location:'frontend/src/components/DashboardLayout.tsx:149',message:'DashboardLayout render state snapshot',data:{isAuthenticated,isLoading,routePathname:routeLocation?.pathname ?? null},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
 
   if (isLoading) {
-    // #region agent log
-    fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H2',location:'frontend/src/components/DashboardLayout.tsx:153',message:'DashboardLayout entered loading branch',data:{isAuthenticated,isLoading},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -164,9 +155,6 @@ export default function DashboardLayout() {
   }
 
   if (!isAuthenticated) {
-    // #region agent log
-    fetch('http://127.0.0.1:7319/ingest/61f89cf0-f17c-4d95-857d-435abcdb0592',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9489ed'},body:JSON.stringify({sessionId:'9489ed',runId:'pre-fix',hypothesisId:'H2',location:'frontend/src/components/DashboardLayout.tsx:164',message:'DashboardLayout redirecting unauthenticated user',data:{isAuthenticated,isLoading,routePathname:routeLocation?.pathname ?? null},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     return <Navigate to="/login" replace />;
   }
 
