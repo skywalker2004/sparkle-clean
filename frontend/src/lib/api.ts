@@ -1,7 +1,7 @@
 import { addWeeks, addMonths } from "date-fns";
 import { Client, Invoice, DashboardStats, MonthlyRevenue, User, LoginCredentials, Booking } from "@/types";
 
-const BASE = "http://localhost:5000/api";
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const getToken = () => localStorage.getItem("sc-token");
 
@@ -30,6 +30,24 @@ export const authApi = {
   async getSession(): Promise<User | null> {
     const s = localStorage.getItem("sc-user");
     return s ? JSON.parse(s) : null;
+  },
+  async forgotPassword(email: string): Promise<{ message: string; whatsappLink?: string }> {
+    const res = await fetch(`${BASE}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return res.json();
+  },
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const res = await fetch(`${BASE}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to reset password");
+    return data;
   },
 };
 

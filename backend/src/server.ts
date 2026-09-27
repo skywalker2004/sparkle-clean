@@ -14,19 +14,40 @@ import imageRoutes from "./routes/image.routes";
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = Number(process.env.PORT) || 5000;
 
 app.use(helmet());
-app.use(cors({ 
+
+/**
+ * CORS origins are read from the CORS_ORIGINS environment variable
+ * (comma-separated). In production on Vercel you MUST set, for example:
+ *   CORS_ORIGINS=https://sparkleclean.co.ke,https://your-frontend.vercel.app,http://localhost:5173
+ * A missing CORS_ORIGINS keeps the localhost development defaults below.
+ * "Failed to fetch" in Chrome often means a CORS preflight rejection, so
+ * every deployed frontend origin must appear here.
+ */
+const corsOrigins = (() => {
+  const env = process.env.CORS_ORIGINS;
+  if (env && env.trim()) {
+    return env
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
+  }
+  return ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
+})();
+console.log("🌐 CORS allowed origins:", corsOrigins);
+
+app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || corsOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true 
+  credentials: true,
 }));
 app.use(express.json());
 

@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute, PublicBookingRoute } from "@/components/ProtectedRoute";
 import LoginPage from "@/pages/LoginPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import BookingPage from "@/pages/BookingPage";
 import BookingConfirmPage from "@/pages/BookingConfirmPage";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -36,6 +38,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             
             {/* Public booking routes - only non-authenticated users */}
             <Route element={<PublicBookingRoute />}>

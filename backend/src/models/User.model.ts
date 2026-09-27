@@ -6,6 +6,8 @@ interface IUser extends Document {
   password: string;
   name: string;
   role: 'admin' | 'staff';
+  resetPasswordToken: string | null;
+  resetPasswordExpires: Date | null;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -17,6 +19,9 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
     password: { type: String, required: true },
     name: { type: String, required: true },
     role: { type: String, enum: ['admin', 'staff'], default: 'staff' },
+    // Stores ONLY the SHA-256 hash of the reset token — never the raw token.
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
   },
   { timestamps: true }
 );

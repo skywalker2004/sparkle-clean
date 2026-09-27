@@ -1,7 +1,9 @@
+import crypto from "crypto";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model";
 import { AuthRequest } from "../types";
+import { sendPasswordResetEmail } from "../utils/email.service";
 
 const generateToken = (id: string, role: string): string => {
   return jwt.sign(
@@ -70,4 +72,95 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   res.json({ message: "Logged out successfully" });
+};
+
+const GENERIC_RESET_RESPONSE = {
+  message: "If an account with that email exists, reset instructions have been sent.",
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email?.toLowerCase().trim() });
+
+    // Always return the SAME generic response whether or not the email exists,
+    // to prevent user-enumeration attacks.
+    if (!user) {
+      return res.json(GENERIC_RESET_RESPONSE);
+    }
+
+    // Generate a raw random token, but persist ONLY its SHA-256 hash.
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 min expiry
+    await user.save();
+
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${resetToken}`;
+
+    // Real, automated notification channel: the password-reset email is sent
+    // in the background and NEVER blocks the response.
+    Promise.allSettled([
+      sendPasswordResetEmail(user.email, user.name, resetUrl),
+    ]).then((results) => {
+      results.forEach((r, i) => {
+        if (r.status === "rejected") console.error(`Reset notification ${i} failed:`, r.reason);
+      });
+    });
+
+    // WhatsApp convenience link — this is NOT an automated WhatsApp send.
+    // WhatsApp's Business API requires a paid Meta Business account for
+    // automated message delivery. This link simply pre-fills a WhatsApp
+    // message the admin can tap to send to themselves, or forward, as a
+    // convenience alongside the automated email.
+    const whatsappMessage = encodeURIComponent(
+      `SparkleClean Kenya password reset requested. Reset link (expires in 30 min): ${resetUrl}`
+    );
+    const whatsappSelfLink = `https://wa.me/254768362805?text=${whatsappMessage}`;
+
+    return res.json({
+      ...GENERIC_RESET_RESPONSE,
+      whatsappLink: whatsappSelfLink, // frontend may offer an optional "also send to WhatsApp" button
+    });
+  } catch (error: any) {
+    console.error("Forgot password error:", error.message);
+    // Still return the generic success response to avoid leaking system state.
+    return res.json(GENERIC_RESET_RESPONSE);
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Reset token is required" });
+    }
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
+    }
+
+    // Hash the presented token and compare against the stored hash only.
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Reset link is invalid or has expired" });
+    }
+
+    // The model's pre-save hook hashes this password.
+    user.password = newPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    return res.json({ message: "Password reset successfully. You can now log in with your new password." });
+  } catch (error: any) {
+    console.error("Reset password error:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
 };

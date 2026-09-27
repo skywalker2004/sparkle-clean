@@ -32,3 +32,8 @@ Thumbs.db
 # Cache
 .cache/
 .parcel-cache/
+
+# Local MongoDB install artifacts (never commit binariesss)
+.mongo-extract/
+.mongo-install/
+query

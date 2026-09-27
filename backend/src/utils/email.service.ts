@@ -27,8 +27,8 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
     ciphers: "SSLv3",
   },
-  debug: true,
-  logger: true,
+  debug: false,
+  logger: false,
 });
 
 transporter.verify((error, success) => {
@@ -459,3 +459,63 @@ export async function sendAdminNotificationEmail(booking: any): Promise<void> {
     console.error("Error details:", error);
   }
 }
+
+// ── PASSWORD RESET EMAIL ────────────────────────────────────────
+export async function sendPasswordResetEmail(toEmail: string, name: string, resetUrl: string): Promise<void> {
+  try {
+    if (!emailUser || !emailPass) {
+      console.error("EMAIL_USER or EMAIL_PASS missing in .env — skipping password reset email");
+      throw new Error("Email transport not configured (EMAIL_USER / EMAIL_PASS missing)");
+    }
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#0f172a;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f172a;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="480" cellpadding="0" cellspacing="0">
+        <tr><td style="background-color:#10b981;border-radius:16px 16px 0 0;padding:32px;text-align:center;">
+          <div style="font-size:40px;">🔐</div>
+          <h1 style="color:#ffffff;font-size:22px;margin:12px 0 0;">Password Reset Request</h1>
+        </td></tr>
+        <tr><td style="background-color:#ffffff;padding:32px;">
+          <p style="color:#0f172a;font-size:15px;line-height:1.6;">Hi ${name},</p>
+          <p style="color:#475569;font-size:14px;line-height:1.6;">
+            We received a request to reset your SparkleClean Kenya admin password. Click the button below to set a new password. This link expires in 30 minutes.
+          </p>
+          <div style="text-align:center;margin:28px 0;">
+            <a href="${resetUrl}" style="background:#10b981;color:#ffffff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:8px;text-decoration:none;display:inline-block;">Reset My Password</a>
+          </div>
+          <p style="color:#94a3b8;font-size:12px;line-height:1.6;">
+            If you did not request this, you can safely ignore this email — your password will remain unchanged. This link expires automatically after 30 minutes for your security.
+          </p>
+          <p style="color:#94a3b8;font-size:12px;">
+            If the button doesn't work, copy this link: <br/>
+            <span style="color:#10b981; word-break:break-all;">${resetUrl}</span>
+          </p>
+        </td></tr>
+        <tr><td style="background-color:#0f172a;border-radius:0 0 16px 16px;padding:20px;text-align:center;">
+          <p style="color:#475569;font-size:11px;margin:0;">SparkleClean Kenya · Security Notification</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: toEmail,
+      subject: "🔐 Reset Your SparkleClean Kenya Password",
+      html,
+    });
+    console.log("✅ Password reset email sent:", info.messageId);
+  } catch (error: any) {
+    logEmailAuthHint(error);
+    console.error("❌ Password reset email failed:", error && error.message ? error.message : error);
+    throw error;
+  }
+}
+
