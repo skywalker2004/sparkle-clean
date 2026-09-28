@@ -51,6 +51,18 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Ensure DB is connected before any route handler runs.
+// On Vercel, startServer()'s connectDB() may not have run yet on cold starts.
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error: any) {
+    console.error("DB connection failed for request:", error.message);
+    res.status(503).json({ message: "Database temporarily unavailable" });
+  }
+});
+
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use("/api", limiter);
 
@@ -69,13 +81,16 @@ app.use((req, res) => {
   res.status(404).json({ message: `Route ${req.method} ${req.path} not found` });
 });
 
-const startServer = async () => {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`?? Server running on http://localhost:${PORT}`);
-    console.log(`?? Test: http://localhost:${PORT}/api/test`);
-    console.log(`?? Login: http://localhost:${PORT}/api/auth/login`);
-  });
-};
+// Local dev: start the HTTP server. On Vercel this file is imported as a
+// serverless function handler and app.listen() is never called.
+if (process.env.NODE_ENV !== "production") {
+  const startServer = async () => {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  };
+  startServer();
+}
 
-startServer();
+export default app;

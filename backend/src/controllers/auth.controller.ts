@@ -44,8 +44,8 @@ export const login = async (req: Request, res: Response) => {
         updatedAt: user.updatedAt,
       },
     });
-  } catch (error) {
-    console.error("Login error:", error);
+  } catch (error: any) {
+    console.error("Login error:", error.message, error.stack);
     res.status(500).json({ message: "Server error during login" });
   }
 };
