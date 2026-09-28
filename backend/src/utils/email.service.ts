@@ -6,9 +6,13 @@ import nodemailer from "nodemailer";
 console.log("EMAIL CONFIG CHECK:", {
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
-  user: process.env.EMAIL_USER,
+  user: process.env.EMAIL_USER
+    ? String(process.env.EMAIL_USER).replace(/^(.)(.*)(@.+)$/, "$1***$3")
+    : "MISSING",
   pass: process.env.EMAIL_PASS ? "SET (" + process.env.EMAIL_PASS.length + " chars)" : "MISSING",
-  from: process.env.EMAIL_FROM,
+  from: process.env.EMAIL_FROM
+    ? String(process.env.EMAIL_FROM).replace(/([^@\s<>]+)@/, "***@")
+    : "MISSING",
   adminEmail: process.env.ADMIN_EMAIL,
 });
 
