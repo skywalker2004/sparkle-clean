@@ -98,16 +98,29 @@ export const forgotPassword = async (req: Request, res: Response) => {
     user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 min expiry
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${resetToken}`;
+    const frontendUrl = process.env.FRONTEND_URL?.trim();
 
-    // Real, automated notification channel: the password-reset email is sent
-    // in the background and NEVER blocks the response.
-    Promise.allSettled([
+    // If the production frontend URL is missing we cannot build a valid reset
+    // link. Log the error and return the generic response (identical in every
+    // case) WITHOUT sending an email that contains a broken link.
+    if (!frontendUrl) {
+      console.error(
+        "FRONTEND_URL is not set — password-reset email was skipped (no valid reset link could be built)"
+      );
+      return res.json(GENERIC_RESET_RESPONSE);
+    }
+
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    // Send the reset email and WAIT for the outcome BEFORE responding — a
+    // serverless function may be frozen/moved on right after the response is
+    // sent, which would drop a fire-and-forget email. Failures are logged and
+    // must never change the generic anti-enumeration response.
+    const emailResults = await Promise.allSettled([
       sendPasswordResetEmail(user.email, user.name, resetUrl),
-    ]).then((results) => {
-      results.forEach((r, i) => {
-        if (r.status === "rejected") console.error(`Reset notification ${i} failed:`, r.reason);
-      });
+    ]);
+    emailResults.forEach((r, i) => {
+      if (r.status === "rejected") console.error(`Reset notification ${i} failed:`, r.reason);
     });
 
     // WhatsApp convenience link — this is NOT an automated WhatsApp send.

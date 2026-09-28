@@ -37,3 +37,5 @@ Thumbs.db
 .mongo-extract/
 .mongo-install/
 query
+
+tmp_login.json

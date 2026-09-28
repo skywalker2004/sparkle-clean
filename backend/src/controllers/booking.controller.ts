@@ -125,24 +125,29 @@ export const createBooking = async (req: any, res: Response) => {
     
     const savedBooking = await booking.save();
 
-    // Trigger emails asynchronously and log errors so booking response isn't impacted
-    setImmediate(async () => {
-      console.log("📬 Triggering emails for booking:", savedBooking.bookingRef);
-      try {
-        await sendAdminNotificationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking);
-      } catch (e: any) {
-        console.error("Admin email failed:", e && e.message ? e.message : e);
-      }
+    // Send emails and WAIT for them before responding. A Vercel serverless
+    // function may be frozen/terminated immediately after the response is
+    // sent, so fire-and-forget sending is unreliable. Email failures are
+    // logged and must never change the booking response status or body.
+    const emailTasks: Promise<void>[] = [
+      sendAdminNotificationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking),
+    ];
 
-      // Client email: skip when client chose WhatsApp and no email was provided
-      if (savedBooking.preferredContactMethod === 'whatsapp' && !savedBooking.email) {
-        console.log("Client chose WhatsApp as contact method — skipping client email send");
-      } else if (savedBooking.email) {
-        try {
-          await sendClientConfirmationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking);
-        } catch (e: any) {
-          console.error("Client email failed:", e && e.message ? e.message : e);
-        }
+    // Client email: skip when client chose WhatsApp and no email was provided
+    if (savedBooking.preferredContactMethod === 'whatsapp' && !savedBooking.email) {
+      console.log("Client chose WhatsApp as contact method — skipping client email send");
+    } else if (savedBooking.email) {
+      emailTasks.push(
+        sendClientConfirmationEmail(savedBooking.toObject ? savedBooking.toObject() : savedBooking),
+      );
+    }
+
+    console.log("📬 Sending booking emails:", savedBooking.bookingRef);
+    const emailResults = await Promise.allSettled(emailTasks);
+    emailResults.forEach((result, index) => {
+      if (result.status === "rejected") {
+        const reason = result.reason as any;
+        console.error(`Booking email ${index} failed:`, reason && reason.message ? reason.message : reason);
       }
     });
 

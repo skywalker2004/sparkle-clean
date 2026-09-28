@@ -283,7 +283,15 @@ export async function sendAdminNotificationEmail(booking: any): Promise<void> {
   const serviceName = getServiceName(booking);
   const totalAmount = getTotalAmount(booking);
   const bookingFrequency = getFrequency(booking);
-  const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/bookings`;
+
+  const frontendUrl = process.env.FRONTEND_URL?.trim();
+  if (!frontendUrl) {
+    console.error(
+      "FRONTEND_URL is not set — admin dashboard email was skipped (no valid dashboard link could be built)"
+    );
+    return;
+  }
+  const dashboardUrl = `${frontendUrl}/bookings`;
 
   const html = `
 <!DOCTYPE html>

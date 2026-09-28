@@ -9,6 +9,21 @@ import { addDays, subDays } from "date-fns";
 dotenv.config();
 
 const seed = async () => {
+  // Admin credentials come ONLY from the environment — never hardcode them.
+  const adminEmail = process.env.SEED_ADMIN_EMAIL?.trim();
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const adminName = process.env.SEED_ADMIN_NAME?.trim() || "Admin";
+
+  if (!adminEmail || !adminPassword) {
+    console.error(
+      "❌ SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD must be set in the environment (e.g. in backend/.env)."
+    );
+    console.error("   Example:");
+    console.error("   SEED_ADMIN_EMAIL=admin@sparkleclean.co.ke");
+    console.error("   SEED_ADMIN_PASSWORD=<a-strong-password>");
+    process.exit(1);
+  }
+
   await connectDB();
 
   if (mongoose.connection.db) {
@@ -18,13 +33,13 @@ const seed = async () => {
 
   // ── Admin ─────────────────────────────────────────────────
   const admin = new User({
-    email: "admin@sparkleclean.co.ke",
-    password: "Roggy@2026!",
-    name: "Roggy",
+    email: adminEmail,
+    password: adminPassword,
+    name: adminName,
     role: "admin",
   });
   await admin.save();
-  console.log("✅ Admin created: admin@sparkleclean.co.ke / Roggy@2026!");
+  console.log(`✅ Admin created: ${adminEmail}`);
 
   // ── Clients ───────────────────────────────────────────────
   const now = new Date();
@@ -136,8 +151,7 @@ const seed = async () => {
   await Invoice.insertMany(invoiceData);
   console.log(`✅ ${invoiceData.length} invoices seeded`);
   console.log("\n🎉 Seed complete!");
-  console.log("   Email:    admin@sparkleclean.co.ke");
-  console.log("   Password: Roggy@2026!\n");
+  console.log(`   Admin email: ${adminEmail}\n`);
 
   process.exit(0);
 };
