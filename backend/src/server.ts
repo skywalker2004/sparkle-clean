@@ -13,6 +13,13 @@ import imageRoutes from "./routes/image.routes";
 
 dotenv.config();
 
+// Log unhandled promise rejections instead of crashing the process/instance.
+// On Vercel, a transient DB hiccup that rejects a promise should surface as a
+// clean 503 from the request handler above, not take down the function.
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
 const app = express();
 app.set("trust proxy", 1);
 const PORT = Number(process.env.PORT) || 5000;
