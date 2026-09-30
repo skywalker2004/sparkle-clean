@@ -4,7 +4,7 @@
 
 | Component | Project (Vercel) | Production URL |
 |---|---|---|
-| Frontend (Vite + React) | `sparkleclean-ke-frontend` | https://sparkleclean-ke-frontend.vercel.app |
+| Frontend (Vite + React) | `sparkleclean-ke-frontend` | https://sparkleclean-ke.vercel.app (canonical; `sparkleclean-ke-frontend.vercel.app` 307-redirects to it) |
 | Backend API (Express) | `sparkle-clean-backend` | https://sparkle-clean-backend.vercel.app |
 | MongoDB | MongoDB Atlas (cluster `sparkleclean`) | `MONGO_URI` env var |
 
@@ -17,7 +17,7 @@ require a redeploy to take effect.
 > **History:** a third project (`sparkleclean-ke`) previously served a duplicate Express
 > backend and (confusingly) owned the `sparkle-clean-backend.vercel.app` alias domain. It was
 > deleted on 2026-09-28 after migrating that alias to the `sparkle-clean-backend` project; its
-> `sparkleclean-ke.vercel.app` domain was retired. The GitHub repo homepage now points to the
+> `sparkleclean-ke.vercel.app` domain is now the frontend's canonical production URL. The GitHub repo homepage now points to the
 > frontend.
 
 ## Environment variables
@@ -31,8 +31,8 @@ require a redeploy to take effect.
 - `NODE_ENV=production`
 - `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`
 - `ADMIN_EMAIL=admin@sparkleclean.co.ke`
-- `FRONTEND_URL=https://sparkleclean-ke-frontend.vercel.app`
-- `CORS_ORIGINS=https://sparkleclean-ke-frontend.vercel.app,http://localhost:5173,http://localhost:5174,http://localhost:5175`
+- `FRONTEND_URL=https://sparkleclean-ke.vercel.app`
+- `CORS_ORIGINS=https://sparkleclean-ke.vercel.app,https://sparkleclean-ke-frontend.vercel.app,http://localhost:5173,http://localhost:5174,http://localhost:5175`
 - `PORT=5000` (optional), `UNSPLASH_ACCESS_KEY`
 
 Values should mirror `backend/.env`. A malformed/whitespace-padded `MONGO_URI` makes login fail
@@ -51,7 +51,7 @@ single-admin app: **Add IP address `0.0.0.0/0`** (permissive, `mongodb+srv` stil
 valid credentials), or add the specific Vercel IP ranges for `iad1`
 (76.76.21.0/24 and peers per https://vercel.com/docs/ip-ranges).
 
-## "Failed to fetch" on admin login — root cause (2016-09-27)
+## "Failed to fetch" on admin login — root cause (2026-09-27)
 
 The frontend hardcoded `http://localhost:5000/api` in `frontend/src/lib/api.ts`, so in
 production every request targeted the *visitor's own* localhost. Fixed by reading
