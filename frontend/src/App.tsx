@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute, PublicBookingRoute } from "@/components/ProtectedRoute";
-import DashboardLayout from "@/components/DashboardLayout";
 import NotFound from "@/pages/NotFound";
 
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
@@ -14,6 +13,7 @@ const ForgotPasswordPage = lazy(() => import("@/pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
 const BookingPage = lazy(() => import("@/pages/BookingPage"));
 const BookingConfirmPage = lazy(() => import("@/pages/BookingConfirmPage"));
+const DashboardLayout = lazy(() => import("@/components/DashboardLayout"));
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
 const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
 const InvoicesPage = lazy(() => import("@/pages/InvoicesPage"));
